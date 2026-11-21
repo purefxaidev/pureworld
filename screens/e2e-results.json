@@ -73,12 +73,12 @@
     {
       "name": "[mobile] level up",
       "ok": true,
-      "info": "Lv2->4"
+      "info": "Lv2->3"
     },
     {
       "name": "[mobile] level-up/skill voice played",
       "ok": true,
-      "info": "['mage_1.mp3', 'mage_1.mp3', 'mage_1.mp3', 'mage_3.mp3', 'mage_2.mp3', 'mage_2.mp3', 'mage_3.mp3']"
+      "info": "['mage_1.mp3', 'mage_1.mp3', 'mage_1.mp3', 'mage_3.mp3', 'mage_2.mp3', 'mage_3.mp3']"
     },
     {
       "name": "[mobile] all 18 skills cast without errors",
@@ -88,7 +88,7 @@
     {
       "name": "[mobile] progress saved to localStorage",
       "ok": true,
-      "info": "lv=4 gold=4971 kills=8"
+      "info": "lv=4 gold=4980 kills=7"
     },
     {
       "name": "[mobile] continue button after reload",
@@ -168,7 +168,7 @@
     {
       "name": "[desktop] fight monsters (kills)",
       "ok": true,
-      "info": "kills=5"
+      "info": "kills=6"
     },
     {
       "name": "[desktop] level up",
@@ -188,7 +188,7 @@
     {
       "name": "[desktop] progress saved to localStorage",
       "ok": true,
-      "info": "lv=3 gold=4939 kills=6"
+      "info": "lv=3 gold=4931 kills=6"
     },
     {
       "name": "[desktop] continue button after reload",
@@ -199,36 +199,6 @@
       "name": "[desktop] loaded progress",
       "ok": true,
       "info": ""
-    },
-    {
-      "name": "[live] connected via ephemeral token (status AI สด)",
-      "ok": true,
-      "info": "AI สด · พร้อมคุย"
-    },
-    {
-      "name": "[live] NPC greeted in Thai (Live native audio transcript)",
-      "ok": true,
-      "info": "โอ้ เจ้าหนูไหมทอง"
-    },
-    {
-      "name": "[live] NPC answered typed question in character",
-      "ok": true,
-      "info": "นมนานมาแล้ว "
-    },
-    {
-      "name": "[live] microphone streaming started (fake device)",
-      "ok": true,
-      "info": "กำลังฟังคุณ…"
-    },
-    {
-      "name": "[live] no API key in any client request",
-      "ok": true,
-      "info": "[]"
-    },
-    {
-      "name": "[live] WebSocket uses BidiGenerateContentConstrained + access_token",
-      "ok": true,
-      "info": "WS wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained?access_token=auth_tokens/***"
     },
     {
       "name": "no console errors / page errors",
