@@ -123,9 +123,9 @@
       face: "assets/img/npc_prom.webp", icon: "assets/img/npc_prom_icon.webp", voice: "Vindemiatrix" },
     lek: { id: "lek", name: "ลุงเหล็ก", title: "โรงตีเหล็ก", x: 46.5, y: 26.7, shop: "gear", color: "#e08a3c",
       face: "assets/img/npc_lek.webp", icon: "assets/img/npc_lek_icon.webp", voice: "Orus" },
-    mali: { id: "mali", name: "น้องมะลิ", title: "กิลด์ผจญภัย", x: 34.5, y: 30.2, guild: true, color: "#5aa9ff",
+    mali: { id: "mali", name: "น้องมะลิ", title: "กิลด์ผจญภัย", x: 34.5, y: 35.8, guild: true, color: "#5aa9ff",
       face: "assets/img/npc_mali.webp", icon: "assets/img/npc_mali_icon.webp", voice: "Zephyr" },
-    sak: { id: "sak", name: "ตาปู่ศักดิ์", title: "ผู้เฒ่านักเล่าตำนาน", x: 46.5, y: 30.2, color: "#b07bff",
+    sak: { id: "sak", name: "ตาปู่ศักดิ์", title: "ผู้เฒ่านักเล่าตำนาน", x: 46.5, y: 35.8, color: "#b07bff",
       face: "assets/img/npc_sak.webp", icon: "assets/img/npc_sak_icon.webp", voice: "Charon" },
   };
 })();

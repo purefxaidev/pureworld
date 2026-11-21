@@ -53,7 +53,7 @@
     {
       "name": "active pet gives stat bonus",
       "ok": true,
-      "info": "{'gold': 0.4352, 'loot': 90}"
+      "info": "{'def': 0.26111999999999996}"
     },
     {
       "name": "pet follows the player",
@@ -73,7 +73,7 @@
     {
       "name": "successful capture → minion + book entry",
       "ok": true,
-      "info": "minions=1 book=['pet_cloudcat', 'mon_rabbit']"
+      "info": "minions=1 book=['pet_turtle', 'mon_rabbit']"
     },
     {
       "name": "minion auto-equipped as companion",
@@ -88,7 +88,7 @@
     {
       "name": "buy capture crystals x5 at shop",
       "ok": true,
-      "info": "1->6"
+      "info": "2->7"
     },
     {
       "name": "AUTO indicator visible",
@@ -98,7 +98,7 @@
     {
       "name": "AUTO: kills + XP/level gain with zero input",
       "ok": true,
-      "info": "20s kills=6 Lv1->3"
+      "info": "16s kills=6 Lv1->3"
     },
     {
       "name": "AUTO drinks potion below HP threshold",
@@ -108,7 +108,7 @@
     {
       "name": "manual input overrides AUTO",
       "ok": true,
-      "info": "650->713"
+      "info": "685->750"
     },
     {
       "name": "AUTO resumes after manual input",
