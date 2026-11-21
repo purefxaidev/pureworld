@@ -53,7 +53,7 @@
     {
       "name": "active pet gives stat bonus",
       "ok": true,
-      "info": "{'def': 0.26111999999999996}"
+      "info": "{'atk': 0.17407999999999998}"
     },
     {
       "name": "pet follows the player",
@@ -73,7 +73,7 @@
     {
       "name": "successful capture → minion + book entry",
       "ok": true,
-      "info": "minions=1 book=['pet_turtle', 'mon_rabbit']"
+      "info": "minions=1 book=['pet_fox', 'mon_rabbit']"
     },
     {
       "name": "minion auto-equipped as companion",
@@ -98,7 +98,7 @@
     {
       "name": "AUTO: kills + XP/level gain with zero input",
       "ok": true,
-      "info": "16s kills=6 Lv1->3"
+      "info": "14s kills=7 Lv1->3"
     },
     {
       "name": "AUTO drinks potion below HP threshold",
@@ -108,7 +108,7 @@
     {
       "name": "manual input overrides AUTO",
       "ok": true,
-      "info": "685->750"
+      "info": "605->668"
     },
     {
       "name": "AUTO resumes after manual input",

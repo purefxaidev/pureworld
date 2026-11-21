@@ -1,6 +1,6 @@
 // PureWorld service worker: precache the app shell + assets, runtime cache for the rest.
 // Live NPC traffic (token endpoint + Google WebSocket) is never cached.
-const VERSION = "pureworld-v3.0";
+const VERSION = "pureworld-v3.1";
 const CORE = [
   "./", "index.html", "manifest.webmanifest", "css/style.css",
   "js/config.js", "js/atlasmeta.js", "js/data.js", "js/world.js", "js/core.js", "js/audio.js", "js/assets.js", "js/anim.js", "js/combat.js", "js/systems.js", "js/render.js", "js/npc.js", "js/ui.js",

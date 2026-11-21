@@ -18,7 +18,7 @@
   {
    "name": "[mobile] only own hero + nearby-zone atlases loaded at start",
    "ok": true,
-   "info": "['mon_slime', 'mon_rabbit', 'mon_wolf', 'mon_mushroom', 'hero_fighter']"
+   "info": "['hero_fighter', 'mon_rabbit', 'mon_wolf', 'mon_mushroom', 'mon_slime']"
   },
   {
    "name": "[mobile] entering the ice zone lazy-loads yeti + boss atlases",
@@ -28,7 +28,7 @@
   {
    "name": "[mobile] hero idle state uses idle frames (11/0)",
    "ok": true,
-   "info": "{'f': 11, 's': 'idle', 'p': 0}"
+   "info": "{'f': 0, 's': 'idle', 'p': 0}"
   },
   {
    "name": "[mobile] walk cycles through the 4 walk frames",
@@ -38,12 +38,12 @@
   {
    "name": "[mobile] attack plays frames 4\u21925\u21926 then returns to idle",
    "ok": true,
-   "info": "[('attack', 4), ('attack', 4), ('attack', 4), ('attack', 5), ('attack', 5), ('attack', 5), ('attack', 6), ('attack', 6), ('attack', 6), ('idle', 11), ('idle', 11), ('idle', 11)]"
+   "info": "[('attack', 4), ('attack', 4), ('attack', 4), ('attack', 4), ('attack', 5), ('attack', 5), ('attack', 5), ('attack', 6), ('attack', 6), ('attack', 6), ('idle', 11), ('idle', 11)]"
   },
   {
    "name": "[mobile] cast plays frames 8\u21929\u219210",
    "ok": true,
-   "info": "[('cast', 8), ('cast', 8), ('cast', 8), ('cast', 8), ('cast', 9), ('cast', 9), ('cast', 10), ('cast', 10), ('cast', 10), ('idle', 0), ('idle', 0), ('idle', 0)]"
+   "info": "[('cast', 8), ('cast', 8), ('cast', 8), ('cast', 9), ('cast', 9), ('cast', 9), ('cast', 9), ('cast', 10), ('cast', 10), ('idle', 11), ('idle', 11), ('idle', 11)]"
   },
   {
    "name": "[mobile] hurt frame (7) while hit",
@@ -108,7 +108,7 @@
   {
    "name": "[mobile] zone change plays a fade transition then clears",
    "ok": true,
-   "info": "0.47->0.00"
+   "info": "0.45->0.00"
   },
   {
    "name": "[mobile] settings panel opens (music 50%, sfx 80%, quality auto)",
@@ -118,7 +118,7 @@
   {
    "name": "[mobile] volume sliders change music/sfx levels",
    "ok": true,
-   "info": "{'ready': True, 'state': 'running', 'track': 'meadow', 'notes': 75, 'music': 0.2, 'sfx': 0.35, 'on': True}"
+   "info": "{'ready': True, 'state': 'running', 'track': 'meadow', 'notes': 80, 'music': 0.2, 'sfx': 0.35, 'on': True}"
   },
   {
    "name": "[mobile] low graphics: quality=low, particle cap 140, canvas \u22641x DPR",
@@ -193,7 +193,7 @@
   {
    "name": "[desktop] only own hero + nearby-zone atlases loaded at start",
    "ok": true,
-   "info": "['mon_slime', 'mon_rabbit', 'mon_wolf', 'hero_fighter', 'mon_mummy', 'mon_scorpion']"
+   "info": "['mon_slime', 'hero_fighter', 'mon_mummy', 'mon_scorpion', 'mon_wolf']"
   },
   {
    "name": "[desktop] entering the ice zone lazy-loads yeti + boss atlases",
@@ -203,7 +203,7 @@
   {
    "name": "[desktop] hero idle state uses idle frames (11/0)",
    "ok": true,
-   "info": "{'f': 11, 's': 'idle', 'p': 0}"
+   "info": "{'f': 0, 's': 'idle', 'p': 0}"
   },
   {
    "name": "[desktop] walk cycles through the 4 walk frames",
@@ -218,7 +218,7 @@
   {
    "name": "[desktop] cast plays frames 8\u21929\u219210",
    "ok": true,
-   "info": "[('cast', 8), ('cast', 8), ('cast', 8), ('cast', 8), ('cast', 9), ('cast', 9), ('cast', 9), ('cast', 10), ('cast', 10), ('cast', 10), ('idle', 11), ('idle', 11)]"
+   "info": "[('cast', 8), ('cast', 8), ('cast', 8), ('cast', 9), ('cast', 9), ('cast', 9), ('cast', 10), ('cast', 10), ('cast', 10), ('idle', 0), ('idle', 0), ('idle', 11)]"
   },
   {
    "name": "[desktop] hurt frame (7) while hit",
@@ -247,8 +247,8 @@
   },
   {
    "name": "[desktop] all 12 hero frames x6 and 8 monster frames x8 draw non-empty",
-   "ok": true,
-   "info": "{}"
+   "ok": false,
+   "info": "{'rabbit': False}"
   },
   {
    "name": "[desktop] evolved stages use their own sprite key (\u2026_e1/\u2026_e2) and the images load",
@@ -263,7 +263,7 @@
   {
    "name": "[desktop] WebAudio unlocked + music sequencer scheduling notes",
    "ok": true,
-   "info": "{'ready': True, 'state': 'running', 'track': 'town', 'notes': 31, 'music': 0.5, 'sfx': 0.8, 'on': True}"
+   "info": "{'ready': True, 'state': 'running', 'track': 'town', 'notes': 33, 'music': 0.5, 'sfx': 0.8, 'on': True}"
   },
   {
    "name": "[desktop] all sound effects play without throwing",
@@ -293,7 +293,7 @@
   {
    "name": "[desktop] volume sliders change music/sfx levels",
    "ok": true,
-   "info": "{'ready': True, 'state': 'running', 'track': 'meadow', 'notes': 70, 'music': 0.2, 'sfx': 0.35, 'on': True}"
+   "info": "{'ready': True, 'state': 'running', 'track': 'meadow', 'notes': 75, 'music': 0.2, 'sfx': 0.35, 'on': True}"
   },
   {
    "name": "[desktop] low graphics: quality=low, particle cap 140, canvas \u22641x DPR",
@@ -322,9 +322,11 @@
   },
   {
    "name": "no console errors / page errors",
-   "ok": true,
-   "info": "[]"
+   "ok": false,
+   "info": "['Failed to load resource: the server responded with a status of 503 ()']"
   }
  ],
- "errors": []
+ "errors": [
+  "Failed to load resource: the server responded with a status of 503 ()"
+ ]
 }

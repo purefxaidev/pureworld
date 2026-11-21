@@ -36,7 +36,7 @@
   };
   // lazy single sprite (evolved pet / minion art): resolves when S[k] is ready
   const pend = {};
-  PW.loadSpr = (k) => pend[k] || (pend[k] = new Promise((res) => { const im = new Image(); im.decoding = "async"; im.onload = () => { S[k] = im; res(im); }; im.onerror = () => res(null); im.src = PW.sprUrl(k); }));
+  PW.loadSpr = (k) => pend[k] || (pend[k] = new Promise((res) => { const im = new Image(); im.decoding = "async"; im.onload = () => { S[k] = im; res(im); }; im.onerror = () => { res(null); setTimeout(() => { delete pend[k]; }, 2000); }; im.src = PW.sprUrl(k); }));
   // draw sprite anchored at bottom-centre, height in world px
   PW.drawSpr = (c, k, x, y, h, flip, alpha) => {
     const im = S[k]; if (!im) return 0; const w = h * im.width / im.height;

@@ -68,7 +68,7 @@
     {
       "name": "[mobile] fight monsters (kills)",
       "ok": true,
-      "info": "kills=5"
+      "info": "kills=6"
     },
     {
       "name": "[mobile] level up",
@@ -88,7 +88,7 @@
     {
       "name": "[mobile] progress saved to localStorage",
       "ok": true,
-      "info": "lv=3 gold=4919 kills=6"
+      "info": "lv=3 gold=4937 kills=10"
     },
     {
       "name": "[mobile] continue button after reload",
@@ -188,7 +188,7 @@
     {
       "name": "[desktop] progress saved to localStorage",
       "ok": true,
-      "info": "lv=3 gold=4938 kills=10"
+      "info": "lv=3 gold=4935 kills=9"
     },
     {
       "name": "[desktop] continue button after reload",
