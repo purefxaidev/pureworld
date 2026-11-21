@@ -1,0 +1,330 @@
+{
+ "checks": [
+  {
+   "name": "[mobile] atlas meta lists 6 heroines + 8 monsters/boss",
+   "ok": true,
+   "info": "14"
+  },
+  {
+   "name": "[mobile] all 14 atlases + 28 evolved sprites are served (200)",
+   "ok": true,
+   "info": "[]"
+  },
+  {
+   "name": "[mobile] atlas webp sizes are mobile-friendly (max 151KB)",
+   "ok": true,
+   "info": "155076"
+  },
+  {
+   "name": "[mobile] only own hero + nearby-zone atlases loaded at start",
+   "ok": true,
+   "info": "['mon_slime', 'mon_rabbit', 'mon_wolf', 'mon_mushroom', 'hero_fighter']"
+  },
+  {
+   "name": "[mobile] entering the ice zone lazy-loads yeti + boss atlases",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] hero idle state uses idle frames (11/0)",
+   "ok": true,
+   "info": "{'f': 11, 's': 'idle', 'p': 0}"
+  },
+  {
+   "name": "[mobile] walk cycles through the 4 walk frames",
+   "ok": true,
+   "info": "[0, 1, 2, 3]"
+  },
+  {
+   "name": "[mobile] attack plays frames 4\u21925\u21926 then returns to idle",
+   "ok": true,
+   "info": "[('attack', 4), ('attack', 4), ('attack', 4), ('attack', 5), ('attack', 5), ('attack', 5), ('attack', 6), ('attack', 6), ('attack', 6), ('idle', 11), ('idle', 11), ('idle', 11)]"
+  },
+  {
+   "name": "[mobile] cast plays frames 8\u21929\u219210",
+   "ok": true,
+   "info": "[('cast', 8), ('cast', 8), ('cast', 8), ('cast', 8), ('cast', 9), ('cast', 9), ('cast', 10), ('cast', 10), ('cast', 10), ('idle', 0), ('idle', 0), ('idle', 0)]"
+  },
+  {
+   "name": "[mobile] hurt frame (7) while hit",
+   "ok": true,
+   "info": "{'f': 7, 's': 'hurt', 'p': 0}"
+  },
+  {
+   "name": "[mobile] basicAttack() starts the attack animation",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] castSkill() starts the cast animation",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] monster attack animation frames 4-6",
+   "ok": true,
+   "info": "{'f': 4, 's': 'attack', 'p': 0}"
+  },
+  {
+   "name": "[mobile] monster walk / idle states",
+   "ok": true,
+   "info": "['walk', 'idle']"
+  },
+  {
+   "name": "[mobile] all 12 hero frames x6 and 8 monster frames x8 draw non-empty",
+   "ok": true,
+   "info": "{}"
+  },
+  {
+   "name": "[mobile] evolved stages use their own sprite key (\u2026_e1/\u2026_e2) and the images load",
+   "ok": true,
+   "info": "[['pet_fox', 'pet_fox_e1', 'pet_fox_e2', True, True], ['pet_dragon', 'pet_dragon_e1', 'pet_dragon_e2', True, True]]"
+  },
+  {
+   "name": "[mobile] evolved art differs from the base art (not a scaled reuse)",
+   "ok": true,
+   "info": "['3467:129936', '3504:135309', '3866:172460']"
+  },
+  {
+   "name": "[mobile] WebAudio unlocked + music sequencer scheduling notes",
+   "ok": true,
+   "info": "{'ready': True, 'state': 'running', 'track': 'town', 'notes': 33, 'music': 0.5, 'sfx': 0.8, 'on': True}"
+  },
+  {
+   "name": "[mobile] all sound effects play without throwing",
+   "ok": true,
+   "info": "[]"
+  },
+  {
+   "name": "[mobile] music follows zones (forest / desert / ice themes)",
+   "ok": true,
+   "info": "['desert', 'forest', 'ice']"
+  },
+  {
+   "name": "[mobile] boss theme starts when the boss is near",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] zone change plays a fade transition then clears",
+   "ok": true,
+   "info": "0.47->0.00"
+  },
+  {
+   "name": "[mobile] settings panel opens (music 50%, sfx 80%, quality auto)",
+   "ok": true,
+   "info": "['50', '80', 'auto']"
+  },
+  {
+   "name": "[mobile] volume sliders change music/sfx levels",
+   "ok": true,
+   "info": "{'ready': True, 'state': 'running', 'track': 'meadow', 'notes': 75, 'music': 0.2, 'sfx': 0.35, 'on': True}"
+  },
+  {
+   "name": "[mobile] low graphics: quality=low, particle cap 140, canvas \u22641x DPR",
+   "ok": true,
+   "info": "['low', 140, 390, 390]"
+  },
+  {
+   "name": "[mobile] high graphics restores caps",
+   "ok": true,
+   "info": "['high', 420, 780]"
+  },
+  {
+   "name": "[mobile] settings persisted in the save (music 20, sfx 35, quality low)",
+   "ok": true,
+   "info": "{'sound': True, 'autoAtk': True, 'autoSkill': True, 'potPct': 40, 'musicVol': 20, 'sfxVol': 35, 'quality': 'low'}"
+  },
+  {
+   "name": "[mobile] settings survive a reload",
+   "ok": true,
+   "info": "[20, 'low', 'low']"
+  },
+  {
+   "name": "[mobile] sound toggle mutes audio",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] tank: own atlas loaded and in use",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] fighter: own atlas loaded and in use",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] mage: own atlas loaded and in use",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] marksman: own atlas loaded and in use",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] assassin: own atlas loaded and in use",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[mobile] support: own atlas loaded and in use",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[desktop] atlas meta lists 6 heroines + 8 monsters/boss",
+   "ok": true,
+   "info": "14"
+  },
+  {
+   "name": "[desktop] all 14 atlases + 28 evolved sprites are served (200)",
+   "ok": true,
+   "info": "[]"
+  },
+  {
+   "name": "[desktop] atlas webp sizes are mobile-friendly (max 151KB)",
+   "ok": true,
+   "info": "155076"
+  },
+  {
+   "name": "[desktop] only own hero + nearby-zone atlases loaded at start",
+   "ok": true,
+   "info": "['mon_slime', 'mon_rabbit', 'mon_wolf', 'hero_fighter', 'mon_mummy', 'mon_scorpion']"
+  },
+  {
+   "name": "[desktop] entering the ice zone lazy-loads yeti + boss atlases",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[desktop] hero idle state uses idle frames (11/0)",
+   "ok": true,
+   "info": "{'f': 11, 's': 'idle', 'p': 0}"
+  },
+  {
+   "name": "[desktop] walk cycles through the 4 walk frames",
+   "ok": true,
+   "info": "[0, 1, 2, 3]"
+  },
+  {
+   "name": "[desktop] attack plays frames 4\u21925\u21926 then returns to idle",
+   "ok": true,
+   "info": "[('attack', 4), ('attack', 4), ('attack', 4), ('attack', 4), ('attack', 5), ('attack', 5), ('attack', 5), ('attack', 6), ('attack', 6), ('attack', 6), ('idle', 11), ('idle', 11)]"
+  },
+  {
+   "name": "[desktop] cast plays frames 8\u21929\u219210",
+   "ok": true,
+   "info": "[('cast', 8), ('cast', 8), ('cast', 8), ('cast', 8), ('cast', 9), ('cast', 9), ('cast', 9), ('cast', 10), ('cast', 10), ('cast', 10), ('idle', 11), ('idle', 11)]"
+  },
+  {
+   "name": "[desktop] hurt frame (7) while hit",
+   "ok": true,
+   "info": "{'f': 7, 's': 'hurt', 'p': 0}"
+  },
+  {
+   "name": "[desktop] basicAttack() starts the attack animation",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[desktop] castSkill() starts the cast animation",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[desktop] monster attack animation frames 4-6",
+   "ok": true,
+   "info": "{'f': 4, 's': 'attack', 'p': 0}"
+  },
+  {
+   "name": "[desktop] monster walk / idle states",
+   "ok": true,
+   "info": "['walk', 'idle']"
+  },
+  {
+   "name": "[desktop] all 12 hero frames x6 and 8 monster frames x8 draw non-empty",
+   "ok": true,
+   "info": "{}"
+  },
+  {
+   "name": "[desktop] evolved stages use their own sprite key (\u2026_e1/\u2026_e2) and the images load",
+   "ok": true,
+   "info": "[['pet_fox', 'pet_fox_e1', 'pet_fox_e2', True, True], ['pet_dragon', 'pet_dragon_e1', 'pet_dragon_e2', True, True]]"
+  },
+  {
+   "name": "[desktop] evolved art differs from the base art (not a scaled reuse)",
+   "ok": true,
+   "info": "['3467:129936', '3504:135309', '3866:172460']"
+  },
+  {
+   "name": "[desktop] WebAudio unlocked + music sequencer scheduling notes",
+   "ok": true,
+   "info": "{'ready': True, 'state': 'running', 'track': 'town', 'notes': 31, 'music': 0.5, 'sfx': 0.8, 'on': True}"
+  },
+  {
+   "name": "[desktop] all sound effects play without throwing",
+   "ok": true,
+   "info": "[]"
+  },
+  {
+   "name": "[desktop] music follows zones (forest / desert / ice themes)",
+   "ok": true,
+   "info": "['desert', 'forest', 'ice']"
+  },
+  {
+   "name": "[desktop] boss theme starts when the boss is near",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "[desktop] zone change plays a fade transition then clears",
+   "ok": true,
+   "info": "0.47->0.00"
+  },
+  {
+   "name": "[desktop] settings panel opens (music 50%, sfx 80%, quality auto)",
+   "ok": true,
+   "info": "['50', '80', 'auto']"
+  },
+  {
+   "name": "[desktop] volume sliders change music/sfx levels",
+   "ok": true,
+   "info": "{'ready': True, 'state': 'running', 'track': 'meadow', 'notes': 70, 'music': 0.2, 'sfx': 0.35, 'on': True}"
+  },
+  {
+   "name": "[desktop] low graphics: quality=low, particle cap 140, canvas \u22641x DPR",
+   "ok": true,
+   "info": "['low', 140, 1280, 1280]"
+  },
+  {
+   "name": "[desktop] high graphics restores caps",
+   "ok": true,
+   "info": "['high', 420, 1280]"
+  },
+  {
+   "name": "[desktop] settings persisted in the save (music 20, sfx 35, quality low)",
+   "ok": true,
+   "info": "{'sound': True, 'autoAtk': True, 'autoSkill': True, 'potPct': 40, 'musicVol': 20, 'sfxVol': 35, 'quality': 'low'}"
+  },
+  {
+   "name": "[desktop] settings survive a reload",
+   "ok": true,
+   "info": "[20, 'low', 'low']"
+  },
+  {
+   "name": "[desktop] sound toggle mutes audio",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "no console errors / page errors",
+   "ok": true,
+   "info": "[]"
+  }
+ ],
+ "errors": []
+}

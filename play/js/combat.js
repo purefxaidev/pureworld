@@ -61,12 +61,12 @@
     if (o.stun) m.stun = Math.max(m.stun, o.stun); if (o.slow) m.slow = Math.max(m.slow, o.slow);
     if (o.knock) { const a = Math.atan2(m.y - src.y, m.x - src.x); tryMove(m, Math.cos(a) * o.knock, Math.sin(a) * o.knock); }
     PW.dmgText(m.x, m.y - m.r * 2.2, d, crit, src);
-    if (src.isPlayer) { PW.sfx("hit"); if (src.lifesteal) src.hp = Math.min(src.maxHp, src.hp + d * src.lifesteal); }
+    if (src.isPlayer) { PW.sfx(crit ? "crit" : "hit"); if (src.lifesteal) src.hp = Math.min(src.maxHp, src.hp + d * src.lifesteal); }
     PW.spark(m.x, m.y - m.r, crit ? "#ffd23f" : (src.color || "#fff"), crit ? 9 : 5);
     if (m.hp <= 0) killMonster(m, src);
   }
   function killMonster(m, src) {
-    m.dead = true; m.dieT = 0.5; m.respT = PW.MONSTERS[m.type].boss ? 90 : 14; m.target = null; const D = PW.MONSTERS[m.type]; const h = G.hero, S = G.S; const B = PW.bonus ? PW.bonus() : {};
+    PW.sfx("pop"); m.dead = true; m.dieT = 0.5; m.respT = PW.MONSTERS[m.type].boss ? 90 : 14; m.target = null; const D = PW.MONSTERS[m.type]; const h = G.hero, S = G.S; const B = PW.bonus ? PW.bonus() : {};
     const pen = U.clamp(1 - (h.level - m.lvl - 4) * 0.12, 0.2, 1); const xp = Math.max(1, Math.round(m.xp * pen * (1 + (B.xp || 0)))); const gold = Math.round(m.gold * U.rnd(0.8, 1.4) * (1 + (B.gold || 0)));
     S.kills++; PW.text(m.x, m.y - 30, "+" + xp + " XP", "#9be7ff", 1.1, 13); PW.drop(m.x, m.y, "gold", gold);
     for (let i = 0; i < 14; i++) PW.part(m.x, m.y - m.r, D.color); PW.spark(m.x, m.y - m.r, "#fff", 10);
@@ -91,7 +91,7 @@
     if (h.dead) return; d = Math.max(1, Math.round(d));
     if (h.shield > 0) { const a = Math.min(h.shield, d); h.shield -= a; d -= a; PW.text(h.x, h.y - 24, "block", "#8ae8ff", 0.6, 11); }
     if (d <= 0) return; h.hp -= d; h.hurt = 0.15; PW.text(h.x, h.y - 24, "-" + d, h.isPlayer ? "#ff6a6a" : "#ffa0a0", 0.8, 13); if (h.isPlayer) { PW.sfx("hurt"); G.shake = 0.15; }
-    if (h.hp <= 0) { h.hp = 0; h.dead = true; h.moving = false; if (h.isPlayer) PW.onPlayerDead(); else { h.reviveT = 14; PW.text(h.x, h.y - 30, "ล้มแล้ว!", "#fff", 1.2, 14); } }
+    if (h.hp <= 0) { h.hp = 0; h.dead = true; h.deadAt = G.t; PW.sfx && PW.sfx("down"); h.moving = false; if (h.isPlayer) PW.onPlayerDead(); else { h.reviveT = 14; PW.text(h.x, h.y - 30, "ล้มแล้ว!", "#fff", 1.2, 14); } }
   }
   function healHero(h, a) { if (h.dead) return; if (SKC) a *= SKC.mul; a = Math.round(a); h.hp = Math.min(h.maxHp, h.hp + a); PW.text(h.x, h.y - 28, "+" + a, "#7dff9b", 0.9, 13); }
   function shieldHero(h, a, dur) { if (SKC) a *= SKC.mul; h.shield = Math.max(h.shield, a); h.shieldT = dur; PW.ring(h.x, h.y, 26, "#8ae8ff", 0.5); }
@@ -119,7 +119,7 @@
   // ---------------------------------------------------------------- basic attack
   PW.basicAttack = (h, m) => {
     const H = PW.HEROES[h.id]; if (h.atkT > 0 || h.stun > 0 || h.dead) return false;
-    h.atkT = H.atkCd; h.face = U.ang(h, m); h.cast = 0.18;
+    h.atkT = H.atkCd; h.face = U.ang(h, m); h.cast = 0.18; PW.setAnim(h, "attack", Math.min(0.34, H.atkCd * 0.8)); if (h.isPlayer) PW.sfx(!H.ranged ? "swing" : h.id === "marksman" ? "arrow" : "magic");
     if (!H.ranged) { hit(h, m, 1.0); const a = h.face; G.slashes.push({ x: h.x, y: h.y - 14, a, r: 34, c: H.color, t: 0.2, dur: 0.2, flip: Math.random() < 0.5 }); }
     else shoot(h, h.face, { mul: 1.0, speed: 400, range: H.range + 60, r: 7, c: H.color, size: 5 });
     return true;
@@ -170,7 +170,7 @@
     const ctx = { h, mul: PW.skillMul(lv) * (h.skillDmg || 1), area: PW.skillAreaMul(lv), ms5: lv >= 5 };
     let ok; SKC = ctx; try { ok = SK[h.id][i](h); } finally { SKC = null; }
     if (ok === false) { if (h.isPlayer && !G.autoHunt) PW.toast("ไม่มีเป้าหมายในระยะ"); return false; }
-    h.cds[i] = def.cd * PW.skillCdMul(lv); h.cast = 0.35; PW.skillFx && PW.skillFx(h, i);
+    h.cds[i] = def.cd * PW.skillCdMul(lv); h.cast = 0.35; PW.setAnim(h, "cast", 0.5); PW.skillFx && PW.skillFx(h, i);
     if (h.isPlayer) { h.mp -= cost; PW.sfx("skill"); if (G.t - lastVoice > 6) { lastVoice = G.t; PW.playVoice(h.id, 2); } }
     if (h.isPlayer && lv >= 10) PW.later(0.55, () => { if (h.dead) return; const e = Object.assign({}, ctx, { mul: ctx.mul * 0.5 }); SKC = e; try { SK[h.id][i](h); } finally { SKC = null; } PW.text(h.x, h.y - 70, "ECHO!", "#9fe4ff", 0.8, 14); });
     return true;
@@ -240,8 +240,8 @@
     }
     const dx = t.x - m.x, dy = t.y - m.y, d = Math.hypot(dx, dy), reach = m.r + t.r + 6; m.face = Math.atan2(dy, dx);
     if (d > reach) tryMove(m, (dx / d) * m.spd * sl * dt, (dy / d) * m.spd * sl * dt);
-    else if (m.atkT <= 0) { m.atkT = D.boss ? 1.4 : 1.2; hurtHero(t, m.atk * U.rnd(0.85, 1.15) - t.def * 0.6, m); }
-    if (D.boss) { m.spT -= dt; if (m.spT <= 0 && d < 320) { m.spT = 6; const bx = m.x, by = m.y; PW.ring(bx, by, 150, "#ff4d4d", 0.9); PW.text(bx, by - 50, "ระวัง!", "#ff6a6a", 1, 16); PW.later(0.9, () => { PW.ring(bx, by, 150, "#fff", 0.3); G.shake = 0.3; for (const h of alive()) if (Math.hypot(h.x - bx, h.y - by) < 150 + h.r) hurtHero(h, m.atk * 1.4 - h.def * 0.6, m); }); } }
+    else if (m.atkT <= 0) { m.atkT = D.boss ? 1.4 : 1.2; PW.setAnim(m, "attack", D.boss ? 0.55 : 0.4); hurtHero(t, m.atk * U.rnd(0.85, 1.15) - t.def * 0.6, m); }
+    if (D.boss) { m.spT -= dt; if (m.spT <= 0 && d < 320) { m.spT = 6; PW.setAnim(m, "attack", 0.9); PW.sfx && PW.sfx("boss"); const bx = m.x, by = m.y; PW.ring(bx, by, 150, "#ff4d4d", 0.9); PW.text(bx, by - 50, "ระวัง!", "#ff6a6a", 1, 16); PW.later(0.9, () => { PW.ring(bx, by, 150, "#fff", 0.3); G.shake = 0.3; for (const h of alive()) if (Math.hypot(h.x - bx, h.y - by) < 150 + h.r) hurtHero(h, m.atk * 1.4 - h.def * 0.6, m); }); } }
   }
 
   // ---------------------------------------------------------------- main update
@@ -294,7 +294,7 @@
     const h = G.hero, S = G.S; const loss = Math.floor(S.gold * 0.1); S.gold -= loss; h.dead = false; h.hp = Math.round(h.maxHp * 0.5); h.mp = Math.round(h.maxMp * 0.5);
     h.x = G.W.spawn.x; h.y = G.W.spawn.y; h.shield = 0; h.stun = 0; for (const a of G.allies) { a.dead = false; a.hp = a.maxHp; a.x = h.x; a.y = h.y; }
     for (const m of G.monsters) { if (!m.dead && m.target) m.target = null; }
-    PW.save(); PW.toast("ฟื้นขึ้นที่เมืองพิวร์ (เสียทอง " + loss + ")");
+    PW.save(); PW.toast("ฟื้นขึ้นที่เมืองพิวร์ (เสียทอง " + loss + ")"); PW.fade && PW.fade("#000", 1, 1000);
   };
   PW.pickHuntZone = pickHuntZone;
 

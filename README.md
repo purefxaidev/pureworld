@@ -6,6 +6,26 @@
 * **Game:** `/play/`
 * Code: MIT · Art/voice: generated with AI tools for the PureWorld project (all rights reserved by PureFxAi unless stated)
 
+## What's new in v3
+
+* **Frame-by-frame animation** — every heroine has a 12-frame AI-generated sheet (walk ×4, attack ×3, cast ×3, hurt/death, idle) and every monster + the boss
+  has walk ×4 / attack ×3 / hurt. An animation state machine (`play/js/anim.js`: idle · walk · attack · cast · hurt · dead) drives them from real combat events
+  (basic attacks, skills, ultimate, capture, monster swings, boss slam). White hit-flash silhouettes and attack lunges are layered on top.
+* **Unique art for every evolution stage** — each of the 6 pets and 8 captured-monster minions has its own redrawn ✦ stage-2 and ✦✦ stage-3 form
+  (`pet_<name>_e1/_e2`, `tamed_<monster>_e1/_e2`) instead of a scaled sprite with a glow.
+* **Audio** — fully procedural WebAudio (no audio files, nothing to license): layered SFX (swing/bow/magic, hit/crit, skills, ultimate, capture, evolve, loot, UI…)
+  plus a generative music sequencer with a **different theme per zone** (town, meadow, forest, desert, ice) and a **boss theme**, cross-faded as you move.
+* **Settings** (⚙ button, menu, or `M`) — master sound, music volume, SFX volume, graphics quality *auto / high / low*. *Low* = 1× resolution, fewer particles,
+  no vignette/water shimmer/glow sprites. *Auto* switches to low on weak devices or when the frame rate stays low. Saved with your game.
+* **Polish** — eased shock-wave rings, glowing particle sprites, projectile trails, cast-charge glow, smoother camera shake, zone-change and respawn screen
+  transitions, panel pop-in animations.
+* **Mobile performance** — animation atlases are lazy-loaded: only your heroine/allies and the monsters of the zone you are in (+ the next zone, prefetched) are fetched.
+  Atlases are 26–150 KB WebP each (≈1.5 MB for all 14 + 28 evolution sprites), the static sprites stay as an instant fallback while an atlas loads.
+
+### Audio credits / licences
+All sound effects and music are synthesised in the browser at runtime (oscillators + noise, `play/js/audio.js`) — original to this project, no third-party samples or tracks.
+The only recorded audio are the six heroine voice lines (`play/assets/audio/*.mp3`), AI-generated for PureWorld (v1). Fonts: Kanit and Sarabun (SIL Open Font License 1.1).
+
 ## What's new in v2
 
 * **Controls fixed** — always-visible joystick bottom-left (also re-centres wherever you touch the lower-left), drag anywhere on the map,
@@ -49,10 +69,11 @@
 ```
 index.html            Landing page                       assets/          landing images (banner, og, QR)
 play/                 The game (static, no build)
-play/js/              config data world core assets combat systems render npc ui
+play/js/              config atlasmeta data world core audio assets anim combat systems render npc ui
 play/assets/sprites/  generated game sprites (webp)      play/assets/img|audio|fonts   portraits, voice, fonts
 play/sw.js            service worker                     play/manifest.webmanifest
-art_src/              generated source art (jpg)         tools/process_art.py   -> play/assets/sprites/*.webp
+art_src/              generated source art (jpg)         tools/process_art.py (static) + process_anim.py (atlases, evolutions) -> play/assets/sprites/*.webp
+tools/artlib.py       shared background-removal / packing helpers
 tools/serve.mjs       zero-dependency static server      package.json   npm scripts
 worker/               Cloudflare Worker (Gemini Live ephemeral token broker) + README
 mobile/               Capacitor config example
@@ -86,8 +107,9 @@ Then set `window.PW_CONFIG = { NPC_API_URL: "http://127.0.0.1:8787" }` in `play/
 
 ### Regenerate sprites (optional)
 
-`npm run art` (= `python3 tools/process_art.py`, needs `pip install pillow numpy`) cuts the generated sheets in `art_src/`
-(background removal, trimming, icon grids, seamless textures) into `play/assets/sprites/*.webp` and the landing banners.
+`npm run art` (= `process_art.py` + `process_anim.py`, needs `pip install pillow numpy opencv-python-headless`) cuts the generated sheets in `art_src/`
+(background removal, trimming, icon grids, seamless textures, animation atlases, evolution pairs) into `play/assets/sprites/*.webp`, `play/js/atlasmeta.js` and the landing banners.
+`npm run art:anim` rebuilds only the animation atlases. Animation sheets: `anim_<hero>.jpg` (4×3: walk, attack, hurt, cast, idle) and `manim_<monster>.jpg` (4×2: walk, attack, hurt).
 
 ## Enable live AI NPC (Gemini Live voice) — optional
 
@@ -119,6 +141,8 @@ npm run test:controls            # moves the heroine with every input: CDP touch
 npm run test:systems             # skill points/upgrades/passive/ult, pets hatch/feed/evolve/follow, capture -> minion + book,
                                  # shop extras, AUTO farm gains XP/levels with zero input, auto potion, override+resume, auto-revive
 npm run test:e2e                 # hero select, NPC chat fallback, shop, gear, party, fight, level-up, save/continue
+npm run test:v3                  # v3: atlases served + lazy-loaded, animation state machine frames, evolved art, audio/music per zone,
+                                 # settings (volume/quality persisted), screen transitions; screenshots v3_*.png (add -- --video for v3_anim.mp4)
 npm run test:landing             # landing page checks + screenshots
 ```
 
@@ -149,7 +173,9 @@ Notes:
 
 ## Known limitations
 
-* Sprites are single-frame images animated procedurally (bob/squash/lunge), not frame-by-frame animation.
+* Animation is short (3–4 frames per action, ~10 fps) AI-generated art, so frames can show slight pose/outline wobble; scorpion/boss attack frames differ only subtly (a procedural lunge is added).
+* Pets and minions use one evolved image per stage (no walk cycle); they hop/float procedurally.
+* Music is simple generative chiptune-style synth, not composed tracks. iOS only starts audio after the first tap.
 * Single-player, single save slot (browser `localStorage`; clearing site data deletes progress).
 * Live voice NPC needs your own Worker + Gemini key (the landing/game work without it using scripted replies); Gemini Live is a preview API.
 * Echo can occur on speakers when using the mic — use headphones.

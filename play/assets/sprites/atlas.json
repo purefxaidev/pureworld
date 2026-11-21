@@ -1,0 +1,114 @@
+{
+ "hero_tank": {
+  "file": "assets/sprites/atlas_hero_tank.webp",
+  "cell": 192,
+  "cols": 4,
+  "n": 12,
+  "bodyH": 174.4,
+  "scale": 0.684
+ },
+ "hero_fighter": {
+  "file": "assets/sprites/atlas_hero_fighter.webp",
+  "cell": 192,
+  "cols": 4,
+  "n": 12,
+  "bodyH": 164.8,
+  "scale": 0.641
+ },
+ "hero_mage": {
+  "file": "assets/sprites/atlas_hero_mage.webp",
+  "cell": 192,
+  "cols": 4,
+  "n": 12,
+  "bodyH": 129.9,
+  "scale": 0.531
+ },
+ "hero_marksman": {
+  "file": "assets/sprites/atlas_hero_marksman.webp",
+  "cell": 192,
+  "cols": 4,
+  "n": 12,
+  "bodyH": 133.4,
+  "scale": 0.531
+ },
+ "hero_assassin": {
+  "file": "assets/sprites/atlas_hero_assassin.webp",
+  "cell": 192,
+  "cols": 4,
+  "n": 12,
+  "bodyH": 155.8,
+  "scale": 0.664
+ },
+ "hero_support": {
+  "file": "assets/sprites/atlas_hero_support.webp",
+  "cell": 192,
+  "cols": 4,
+  "n": 12,
+  "bodyH": 173.4,
+  "scale": 0.699
+ },
+ "mon_slime": {
+  "file": "assets/sprites/atlas_mon_slime.webp",
+  "cell": 144,
+  "cols": 4,
+  "n": 8,
+  "bodyH": 80.1,
+  "scale": 0.427
+ },
+ "mon_rabbit": {
+  "file": "assets/sprites/atlas_mon_rabbit.webp",
+  "cell": 160,
+  "cols": 4,
+  "n": 8,
+  "bodyH": 120.3,
+  "scale": 0.461
+ },
+ "mon_wolf": {
+  "file": "assets/sprites/atlas_mon_wolf.webp",
+  "cell": 176,
+  "cols": 4,
+  "n": 8,
+  "bodyH": 83.2,
+  "scale": 0.521
+ },
+ "mon_mushroom": {
+  "file": "assets/sprites/atlas_mon_mushroom.webp",
+  "cell": 160,
+  "cols": 4,
+  "n": 8,
+  "bodyH": 125.1,
+  "scale": 0.498
+ },
+ "mon_scorpion": {
+  "file": "assets/sprites/atlas_mon_scorpion.webp",
+  "cell": 176,
+  "cols": 4,
+  "n": 8,
+  "bodyH": 138.1,
+  "scale": 0.518
+ },
+ "mon_mummy": {
+  "file": "assets/sprites/atlas_mon_mummy.webp",
+  "cell": 176,
+  "cols": 4,
+  "n": 8,
+  "bodyH": 162.3,
+  "scale": 0.514
+ },
+ "mon_yeti": {
+  "file": "assets/sprites/atlas_mon_yeti.webp",
+  "cell": 192,
+  "cols": 4,
+  "n": 8,
+  "bodyH": 170.0,
+  "scale": 0.583
+ },
+ "mon_boss": {
+  "file": "assets/sprites/atlas_mon_boss.webp",
+  "cell": 256,
+  "cols": 4,
+  "n": 8,
+  "bodyH": 176.1,
+  "scale": 0.584
+ }
+}

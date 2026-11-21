@@ -56,7 +56,7 @@
     G.autoHunt = !!S.auto && !isNew; G.moveTo = null; G.cam.x = h.x; G.cam.y = h.y; G.lastZone = ""; G.t = 0; G.comps = []; G.loot = []; PW.syncComps();
     $("title").hidden = true; $("hud").hidden = false; $("controls").hidden = false; $("joy").hidden = false; G.paused = false; G.running = true; PW.updateUltBtn();
     $("hud-icon").src = "assets/img/" + S.heroId + "_icon.webp"; buildSkillButtons(); PW.updateHud(true); syncToggles();
-    if (!S.hint) showHint();
+    PW.fade("#05020f", 1, 900); PW.ensureAtlases(); if (!S.hint) showHint();
     if (!loopOn) { loopOn = true; let last = performance.now(); const frame = (now) => { const dt = Math.min(0.05, (now - last) / 1000); last = now; if (G.running && !G.paused) PW.update(dt); if (G.running) { PW.render(); PW.renderMinimap(); PW.updateHud(); updateSkillButtons(); updateTalk(); updateCap(); } requestAnimationFrame(frame); }; requestAnimationFrame(frame); }
     PW.save();
   }
@@ -81,7 +81,9 @@
     const h = G.hero, b = $("btn-ult"); if (!b.hidden) { const cd = Math.round(U.clamp((h.ultCd || 0) / PW.ULTS[h.id].cd, 0, 1) * 100); if (hc.ult !== cd) { hc.ult = cd; b.querySelector(".cd").style.height = cd + "%"; b.classList.toggle("ready", cd === 0); } }
   }
   PW.updateUltBtn = () => { const S = G.S, h = G.hero; if (!S || !h) return; const b = $("btn-ult"); b.hidden = !(S.ult > 0); if (S.ult > 0) { b.style.backgroundImage = "url(" + PW.sprUrl("ult_" + h.id) + ")"; b.innerHTML = `<i class="cd"></i><span class="k">4</span><span class="lv">Lv${S.ult}</span><b>${PW.ULTS[h.id].n}</b>`; } delete hc.ult; };
-  PW.showZone = (z) => { const b = $("zonebanner"); if (!G.running) return; b.innerHTML = `<b>${z.name}</b><small>${z.lv}${z.danger && G.hero.level < z.danger ? " · อันตราย! แนะนำ Lv " + z.danger + "+" : ""}</small>`; b.classList.remove("show"); void b.offsetWidth; b.classList.add("show"); };
+  PW.showZone = (z) => { const b = $("zonebanner"); if (!G.running) return; if (PW.zoneAtlases) { PW.zoneAtlases(z.id); PW.prefetchNextZone(z.id); } if (G.t > 1.5) { PW.sfx("zone"); PW.fade(FADE[z.id] || FADE.meadow, 0.7, 700); } b.innerHTML = `<b>${z.name}</b><small>${z.lv}${z.danger && G.hero.level < z.danger ? " · อันตราย! แนะนำ Lv " + z.danger + "+" : ""}</small>`; b.classList.remove("show"); void b.offsetWidth; b.classList.add("show"); };
+  const FADE = { town: "radial-gradient(circle,rgba(0,0,0,0) 10%,#2a1a0a 120%)", meadow: "radial-gradient(circle,rgba(0,0,0,0) 10%,#12331a 120%)", forest: "radial-gradient(circle,rgba(0,0,0,0) 10%,#06190f 120%)", desert: "radial-gradient(circle,rgba(0,0,0,0) 10%,#3a2406 120%)", ice: "radial-gradient(circle,rgba(0,0,0,0) 10%,#0b2a48 120%)" };
+  PW.fade = (bg, peak, ms) => { const el = $("fade"); if (!el) return; if (PW.quality() === "low" && peak < 1) peak *= 0.6; el.style.transition = "none"; el.style.background = bg; el.style.opacity = peak; void el.offsetWidth; el.style.transition = "opacity " + ms + "ms ease-out"; el.style.opacity = 0; };
   function syncToggles() { delete hc.auto; PW.updateHud(); $("tg-atk").classList.toggle("on", G.S.settings.autoAtk); $("tg-snd").classList.toggle("on", G.S.settings.sound); }
 
   function buildSkillButtons() {
@@ -112,7 +114,7 @@
       if (is("Space", " ") || is("KeyJ", "j")) { e.preventDefault(); manualAttack(); } else if (is("Digit1", "1")) PW.castSkill(G.hero, 0); else if (is("Digit2", "2")) PW.castSkill(G.hero, 1); else if (is("Digit3", "3")) PW.castSkill(G.hero, 2);
       else if (is("Digit4", "4") || is("KeyF", "f")) PW.castUlt(G.hero); else if (is("KeyC", "c")) PW.throwCapture(); else if (is("KeyQ", "q")) PW.usePotion("hp"); else if (is("KeyR", "r")) PW.usePotion("mp");
       else if (is("KeyE", "e")) talk(); else if (is("KeyB", "b")) openBag(); else if (is("KeyP", "p")) openParty(); else if (is("KeyO", "o")) openQuests(); else if (is("KeyH", "h")) toggleAuto();
-      else if (is("KeyK", "k")) openSkills(); else if (is("KeyL", "l")) openPets(); else if (is("KeyN", "n")) openBook(); else if (k === "escape") openMenu();
+      else if (is("KeyM", "m")) openSettings(); else if (is("KeyK", "k")) openSkills(); else if (is("KeyL", "l")) openPets(); else if (is("KeyN", "n")) openBook(); else if (k === "escape") openMenu();
     });
     window.addEventListener("keyup", (e) => { const dir = CODE[e.code] || KEYF[(e.key || "").toLowerCase()]; if (dir) { keys[dir] = false; upd(); } });
     window.addEventListener("blur", () => { for (const k in keys) keys[k] = false; upd(); });
@@ -158,7 +160,7 @@
     click("hb-bag", openBag); click("hb-party", openParty); click("hb-quest", openQuests); click("hb-menu", openMenu); click("hb-skill", openSkills); click("hb-pet", openPets); click("hb-book", openBook);
     click("tg-atk", () => { G.S.settings.autoAtk = !G.S.settings.autoAtk; syncToggles(); }); click("tg-snd", () => { G.S.settings.sound = !G.S.settings.sound; syncToggles(); });
     $("hint-ok").addEventListener("click", () => { hideHint(); });
-    $("modal").addEventListener("click", onModalClick); $("modal").addEventListener("change", onModalChange);
+    $("modal").addEventListener("click", onModalClick); $("modal").addEventListener("change", onModalChange); $("modal").addEventListener("input", onModalInput); click("hb-set", openSettings);
     document.addEventListener("visibilitychange", () => { if (document.hidden && G.running) PW.save(); });
     window.addEventListener("pagehide", () => { if (G.running) PW.save(); });
   }
@@ -209,8 +211,29 @@
     else if (a === "pet-rel") { const p = S.pets.find((q) => q.uid === +v); if (p && confirm("ปล่อย " + PW.compName(p) + " ? (ได้ทอง " + 20 * p.lv + "G)")) { PW.releaseComp(+v); openPets(b.dataset.tab); } }
     else if (a === "pet-tab") openPets(v);
     else if (a === "tg-autoskill") { S.settings.autoSkill = !S.settings.autoSkill; openMenu(); }
+    else if (a === "tg-sound") { S.settings.sound = !S.settings.sound; PW.audioApplyVol(); openSettings(); }
+    else if (a === "settings") openSettings();
   }
-  function onModalChange(e) { if (e.target.id === "set-pot") { G.S.settings.potPct = +e.target.value; PW.save(); } }
+  function onModalInput(e) {
+    const S = G.S, id = e.target.id;
+    if (id === "set-music") { S.settings.musicVol = +e.target.value; PW.audioApplyVol(); const o = $("v-music"); if (o) o.textContent = e.target.value + "%"; }
+    else if (id === "set-sfx") { S.settings.sfxVol = +e.target.value; PW.audioApplyVol(); const o = $("v-sfx"); if (o) o.textContent = e.target.value + "%"; clearTimeout(onModalInput.t); onModalInput.t = setTimeout(() => PW.sfx("coin"), 120); }
+  }
+  function openSettings() {
+    const S = G.S, s = S.settings, q = PW.quality(); const mo = (v, t) => `<option value="${v}" ${s.quality === v ? "selected" : ""}>${t}</option>`;
+    openPanel(`<div class="ph"><h2>⚙ ตั้งค่า</h2><button data-act="close" class="x">✕</button></div>
+      <h3>เสียง</h3>
+      <div class="set-row"><span>เสียงทั้งหมด</span><button data-act="tg-sound" class="${s.sound !== false ? "" : "sub"}">${s.sound !== false ? "เปิด" : "ปิด"}</button></div>
+      <div class="set-row"><span>🎵 เพลงประกอบ</span><input id="set-music" type="range" min="0" max="100" step="5" value="${s.musicVol}"><b id="v-music">${s.musicVol}%</b></div>
+      <div class="set-row"><span>💥 เสียงเอฟเฟกต์</span><input id="set-sfx" type="range" min="0" max="100" step="5" value="${s.sfxVol}"><b id="v-sfx">${s.sfxVol}%</b></div>
+      <h3>กราฟิก</h3>
+      <div class="set-row"><span>คุณภาพภาพ</span><select id="set-quality">${mo("auto", "อัตโนมัติ")}${mo("high", "สูง")}${mo("low", "ประหยัด (มือถือสเปคต่ำ)")}</select></div>
+      <p class="muted">ตอนนี้ใช้โหมด: <b id="q-now">${q === "low" ? "ประหยัด" : "สูง"}</b>${s.quality === "auto" && G.autoLow ? " (ระบบลดให้อัตโนมัติเพราะเฟรมเรตต่ำ)" : ""} · ประหยัด = ลดความละเอียด/พาร์ติเคิล/เอฟเฟกต์แสง ลดการใช้แบตและความร้อน</p>
+      <p class="muted">เพลง: ${PW.musicId || "—"} · FPS ~${PW.fps || "?"} · โหลดแอนิเมชันแล้ว ${Object.keys(G.atl).length} ชุด</p>`, "settings");
+  }
+  PW.openSettings = openSettings;
+  function onModalChange(e) {
+    if (e.target.id === "set-quality") { G.S.settings.quality = e.target.value; G.autoLow = false; PW.applyQuality(); PW.save(); const o = $("q-now"); if (o) o.textContent = PW.quality() === "low" ? "ประหยัด" : "สูง"; return; } if (e.target.id === "set-pot") { G.S.settings.potPct = +e.target.value; PW.save(); } }
   PW.openPanelFn = () => ({ openSkills, openPets, openBook });
 
   function statBlock() {
@@ -298,7 +321,7 @@
       <h3>ตั้งค่า AUTO</h3><div class="set-row"><span>ใช้สกิลอัตโนมัติ (ตอน AUTO)</span><button data-act="tg-autoskill" class="${G.S.settings.autoSkill ? "" : "sub"}">${G.S.settings.autoSkill ? "เปิด" : "ปิด"}</button></div>
       <div class="set-row"><span>กินยาแดงอัตโนมัติเมื่อ HP ต่ำกว่า</span><select id="set-pot">${[0, 30, 40, 50, 60, 70].map((v) => `<option value="${v}" ${G.S.settings.potPct === v ? "selected" : ""}>${v ? v + "%" : "ไม่ใช้"}</option>`).join("")}</select></div>
       <p class="muted">ปุ่มลัด: WASD/ลูกศร เดิน · คลิก/แตะพื้นเพื่อเดินไป · Space ตี · 1-3 สกิล · 4/F อัลติ · C ผนึก · H AUTO · K สกิล · L สัตว์เลี้ยง · N สมุด</p>
-      <div class="menu"><button data-act="save">💾 บันทึกเกม</button><button data-act="install">📲 ติดตั้งเป็นแอป</button><button data-act="fullscreen">⛶ เต็มจอ</button><button data-act="titleback">🏠 กลับหน้าแรก</button><button data-act="reset" class="sub">🗑 เริ่มใหม่ทั้งหมด</button></div>
+      <div class="menu"><button data-act="settings">⚙ ตั้งค่าเสียง/กราฟิก</button><button data-act="save">💾 บันทึกเกม</button><button data-act="install">📲 ติดตั้งเป็นแอป</button><button data-act="fullscreen">⛶ เต็มจอ</button><button data-act="titleback">🏠 กลับหน้าแรก</button><button data-act="reset" class="sub">🗑 เริ่มใหม่ทั้งหมด</button></div>
       <p class="muted">NPC: ${mode}</p><p class="muted">เซฟอัตโนมัติทุก 8 วินาที · เล่น ${Math.floor(S.played / 60)} นาที</p>
       <h3>ปุ่มลัดคีย์บอร์ด</h3><p class="muted">WASD/ลูกศร เดิน · Space/J โจมตี · 1/2/3 สกิล · Q/R ยาแดง/ยาน้ำเงิน · E คุย NPC · B กระเป๋า · P ทีม · O ภารกิจ · H ล่าอัตโนมัติ · Esc เมนู</p>
       <p class="muted credit">PureWorld · สร้างโดย PureFxAi · ภาพและเสียงสร้างด้วย AI</p>`, "menu");

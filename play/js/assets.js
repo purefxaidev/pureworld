@@ -34,6 +34,9 @@
       if (S.prop_rock) { S["prop_rock#ice"] = tinted(S.prop_rock, "#cfe6ff", 0.45); S["prop_rock#sand"] = tinted(S.prop_rock, "#d8b878", 0.4); }
     });
   };
+  // lazy single sprite (evolved pet / minion art): resolves when S[k] is ready
+  const pend = {};
+  PW.loadSpr = (k) => pend[k] || (pend[k] = new Promise((res) => { const im = new Image(); im.decoding = "async"; im.onload = () => { S[k] = im; res(im); }; im.onerror = () => res(null); im.src = PW.sprUrl(k); }));
   // draw sprite anchored at bottom-centre, height in world px
   PW.drawSpr = (c, k, x, y, h, flip, alpha) => {
     const im = S[k]; if (!im) return 0; const w = h * im.width / im.height;

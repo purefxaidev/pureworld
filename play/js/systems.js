@@ -44,7 +44,7 @@
   PW.castUlt = (h) => {
     if (!PW.ultReady()) { if (G.S.ult > 0 && !G.autoHunt) PW.toast((h.ultCd || 0) > 0 ? "อัลติเมตยังคูลดาวน์" : "มานาไม่พอ"); return false; }
     const U2 = PW.ULTS[h.id], H = PW.HEROES[h.id], { hit, near, healHero, shieldHero, alive, tryMove } = cb(); const L = 1 + 0.25 * (G.S.ult - 1);
-    h.mp -= U2.mp; h.ultCd = U2.cd; h.cast = 0.6; G.flash = { c: H.color, t: 0.35 }; G.shake = 0.35; PW.sfx("level"); PW.playVoice(h.id, 2);
+    h.mp -= U2.mp; h.ultCd = U2.cd; h.cast = 0.6; PW.setAnim(h, "cast", 0.7); G.flash = { c: H.color, t: 0.35 }; G.shake = 0.35; PW.sfx("ult"); PW.playVoice(h.id, 2);
     PW.text(h.x, h.y - 84, U2.n, "#fff4b8", 1.6, 20); PW.ring(h.x, h.y, 60, H.color, 0.6); PW.spark(h.x, h.y - 20, H.color, 24);
     const tgt = (r) => cb().nearestMonster(h, r, false);
     if (h.id === "tank") { PW.ring(h.x, h.y, 170, "#ffd34d", 0.8); for (const m of near(h.x, h.y, 170)) { hit(h, m, 3 * L, { stun: 2.5 }); m.forceTarget = h; m.forceT = 5; } for (const p of alive()) shieldHero(p, p.maxHp * 0.35 * L, 8); }
@@ -55,12 +55,15 @@
     else if (h.id === "support") { for (const p of alive()) { healHero(p, p.maxHp * 0.6 * L); shieldHero(p, p.maxHp * 0.2 * L, 6); } PW.ring(h.x, h.y, 150, "#ffc0dd", 0.9); for (const m of near(h.x, h.y, 150)) hit(h, m, 3 * L); for (let i = 0; i < 30; i++) PW.part(h.x + U.rnd(-120, 120), h.y + U.rnd(-90, 60), "#ffd6ea"); }
     PW.updateHud && PW.updateHud(true); return true;
   };
-  PW.skillFx = (h, i) => { const c = PW.HEROES[h.id].color; PW.spark(h.x, h.y - 24, c, h.isPlayer ? 10 : 4); if (h.isPlayer) PW.glow(h, c, 0.45); };
+  PW.skillFx = (h, i) => {
+    const c = PW.HEROES[h.id].color; PW.spark(h.x, h.y - 24, c, h.isPlayer ? 10 : 4); PW.ring(h.x, h.y, h.isPlayer ? 46 : 30, c, 0.5);
+    if (h.isPlayer) { PW.glow(h, c, 0.45); for (let k = 0; k < (PW.quality && PW.quality() === "low" ? 4 : 10); k++) G.parts.length < PW.pcap && G.parts.push({ x: h.x + U.rnd(-16, 16), y: h.y - U.rnd(0, 14), vx: U.rnd(-12, 12), vy: -U.rnd(50, 130), t: U.rnd(0.35, 0.7), c, s: U.rnd(2, 3.4) }); }
+  };
 
   // ---------------------------------------------------------------- companions (pets + tamed minions)
   PW.compDef = (p) => (p.kind === "pet" ? PW.PETS[p.sp] : PW.MINIONS[p.sp]);
   PW.compName = (p) => (PW.EVO[p.evo || 0].n ? PW.EVO[p.evo || 0].n + " " : "") + (p.kind === "pet" ? PW.PETS[p.sp].name : "สมุน" + PW.MONSTERS[p.sp].name);
-  PW.compSprite = (p) => (p.kind === "pet" ? "pet_" : "tamed_") + p.sp;
+  PW.compSprite = (p) => (p.kind === "pet" ? "pet_" : "tamed_") + p.sp + (p.evo ? "_e" + p.evo : "");
   PW.addComp = (kind, sp, lv) => { const S = G.S; if (S.pets.length >= 40) { PW.toast("สมุดสมุนเต็ม (40)"); return null; } const p = { uid: S.nextId++, kind, sp, lv: lv || 1, xp: 0, evo: 0 }; S.pets.push(p); S.book[(kind === "pet" ? "pet_" : "mon_") + sp] = true; if (kind === "pet" && !S.petOn) S.petOn = p.uid; if (kind === "minion" && !S.minionOn) S.minionOn = p.uid; PW.syncComps(); PW.calcStats(G.hero); return p; };
   PW.hatchEgg = () => { const S = G.S; if (S.eggs <= 0) { PW.toast("ไม่มีไข่"); return null; } S.eggs--; const ids = Object.keys(PW.PETS); const unowned = ids.filter((id) => !S.pets.some((p) => p.kind === "pet" && p.sp === id)); const pool = unowned.length && Math.random() < 0.75 ? unowned : ids; const sp = pool[(Math.random() * pool.length) | 0]; const p = PW.addComp("pet", sp, 1); if (p) { PW.sfx("level"); PW.toast("ฟักไข่ได้ " + PW.PETS[sp].name + "! 🎉", 3200); PW.save(); } return p; };
   PW.setActiveComp = (uid) => { const S = G.S, p = S.pets.find((q) => q.uid === uid); if (!p) return; const key = p.kind === "pet" ? "petOn" : "minionOn"; S[key] = S[key] === uid ? null : uid; PW.syncComps(); PW.calcStats(G.hero); PW.save(); };
@@ -69,7 +72,7 @@
   PW.petXp = (n) => { const S = G.S; for (const uid of [S.petOn, S.minionOn]) { const p = S.pets.find((q) => q.uid === uid); if (p) compGain(p, n); } };
   PW.feedComp = (uid) => { const S = G.S, p = S.pets.find((q) => q.uid === uid); if (!p) return; if (S.treats <= 0) return PW.toast("ขนมหมด — ซื้อที่ร้านป้าพรม"); if (p.lv >= PW.PET_MAXLV) return PW.toast("เลเวลสูงสุดแล้ว"); S.treats--; compGain(p, Math.round(PW.petXpNext(p.lv) * 0.6)); PW.sfx("pot"); PW.save(); };
   PW.canEvolve = (p) => { const r = PW.EVO_REQ[p.evo || 0]; if (!r) return "วิวัฒนาการสูงสุดแล้ว"; if (p.lv < r.lv) return "ต้องเลเวล " + r.lv; if (G.S.gems < r.gem) return "ต้องใช้อัญมณี " + r.gem + " เม็ด"; return ""; };
-  PW.evolveComp = (uid) => { const S = G.S, p = S.pets.find((q) => q.uid === uid); if (!p) return false; const why = PW.canEvolve(p); if (why) { PW.toast(why); return false; } S.gems -= PW.EVO_REQ[p.evo || 0].gem; p.evo = (p.evo || 0) + 1; PW.sfx("level"); PW.toast("วิวัฒนาการสำเร็จ! " + PW.compName(p) + " ✨", 3200); PW.syncComps(); const e = G.comps.find((c) => c.uid === p.uid); if (e) { PW.ring(e.x, e.y, 60, "#fff4b8", 1); PW.spark(e.x, e.y - 20, "#fff4b8", 30); } PW.calcStats(G.hero); PW.save(); return true; };
+  PW.evolveComp = (uid) => { const S = G.S, p = S.pets.find((q) => q.uid === uid); if (!p) return false; const why = PW.canEvolve(p); if (why) { PW.toast(why); return false; } S.gems -= PW.EVO_REQ[p.evo || 0].gem; p.evo = (p.evo || 0) + 1; PW.sfx("evolve"); PW.toast("วิวัฒนาการสำเร็จ! " + PW.compName(p) + " ✨", 3200); PW.syncComps(); const e = G.comps.find((c) => c.uid === p.uid); if (e) { PW.ring(e.x, e.y, 60, "#fff4b8", 1); PW.spark(e.x, e.y - 20, "#fff4b8", 30); } PW.calcStats(G.hero); PW.save(); return true; };
   PW.syncComps = () => {
     const S = G.S, h = G.hero; if (!S || !h) return; const want = [S.petOn, S.minionOn].filter(Boolean);
     G.comps = G.comps.filter((c) => want.includes(c.uid));
@@ -101,7 +104,7 @@
   PW.throwCapture = () => {
     const S = G.S, h = G.hero; if (h.dead || G.paused) return false; if (S.crystals <= 0) { PW.toast("ผนึกวิญญาณหมด — ซื้อที่ร้านป้าพรม"); return false; }
     const m = PW.captureTarget(); if (!m) { PW.toast("ไม่มีมอนสเตอร์ใกล้ ๆ ให้จับ"); return false; }
-    S.crystals--; const ch = PW.captureChance(m); h.face = U.ang(h, m); h.cast = 0.3;
+    S.crystals--; const ch = PW.captureChance(m); h.face = U.ang(h, m); h.cast = 0.3; PW.setAnim(h, "cast", 0.45);
     G.capFx.push({ x1: h.x, y1: h.y - 30, m, t: 0, dur: 0.45 }); PW.sfx("skill");
     PW.later(0.45, () => {
       if (m.dead) { PW.toast("เป้าหมายหายไปแล้ว"); return; }
@@ -109,7 +112,7 @@
       if (PW.captureRoll() < ch) {
         m.dead = true; m.dieT = 0; m.captured = 0.8; m.respT = PW.MONSTERS[m.type].boss ? 120 : 14; m.target = null;
         const lv = Math.max(1, Math.min(m.lvl, h.level)); const p = PW.addComp("minion", m.type, lv);
-        PW.gainXp(Math.round(m.xp * 0.5)); PW.sfx("level"); G.capFx.push({ x1: m.x, y1: m.y, m: null, t: 0, dur: 0.8, ok: true });
+        PW.gainXp(Math.round(m.xp * 0.5)); PW.sfx("capture"); G.capFx.push({ x1: m.x, y1: m.y, m: null, t: 0, dur: 0.8, ok: true });
         if (p) PW.toast("จับ " + PW.MONSTERS[m.type].name + " สำเร็จ! ได้สมุนใหม่ (สมุดสมุน)", 3200);
         S.capOk = (S.capOk || 0) + 1;
       } else { PW.text(m.x, m.y - m.r * 2.4, "หลุด!", "#ff9a9a", 1, 16); PW.toast("ผนึกแตก! (โอกาส " + Math.round(ch * 100) + "%) — ตีให้เลือดน้อยลงก่อน"); m.target = h; S.capFail = (S.capFail || 0) + 1; }

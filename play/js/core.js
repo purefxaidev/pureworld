@@ -21,13 +21,13 @@
   PW.newSave = (heroId) => ({
     v: 1, heroId, level: 1, xp: 0, gold: 100, hpPot: 5, mpPot: 3, x: 0, y: 0, hp: 0, mp: 0,
     bag: [], eq: { weapon: null, armor: null, charm: null }, qIdx: 0, qProg: 0, party: [], kills: 0,
-    settings: { sound: true, autoAtk: true, autoSkill: true, potPct: 40 }, played: 0, created: Date.now(), nextId: 1,
+    settings: { sound: true, autoAtk: true, autoSkill: true, potPct: 40, musicVol: 50, sfxVol: 80, quality: "auto" }, played: 0, created: Date.now(), nextId: 1,
   });
   // v2 fields (also migrated into older saves)
   PW.migrate = (s) => {
     const d = { sp: 0, skl: [1, 1, 1], ult: 0, passive: false, crystals: 3, eggs: 1, treats: 2, gems: 0, pets: [], petOn: null, minionOn: null, book: {}, seen: {}, hint: 0 };
     for (const k in d) if (s[k] === undefined) s[k] = JSON.parse(JSON.stringify(d[k]));
-    if (s.settings.autoSkill === undefined) s.settings.autoSkill = true; if (!s.settings.potPct) s.settings.potPct = 40;
+    if (s.settings.autoSkill === undefined) s.settings.autoSkill = true; if (!s.settings.potPct) s.settings.potPct = 40; if (s.settings.musicVol == null) s.settings.musicVol = 50; if (s.settings.sfxVol == null) s.settings.sfxVol = 80; if (!s.settings.quality) s.settings.quality = "auto";
     if (s.spGiven === undefined) { s.sp += Math.max(0, (s.level || 1) - 1); s.spGiven = true; } // retroactive skill points
     return s;
   };
@@ -39,36 +39,6 @@
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* storage full/blocked */ }
   };
   PW.wipeSave = () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* */ } };
-
-  // ---------------------------------------------------------------- audio
-  let ac = null;
-  PW.audioUnlock = () => { try { if (!ac) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) ac = new AC(); } if (ac && ac.state === "suspended") ac.resume(); } catch (e) { /* */ } };
-  const soundOn = () => !G.S || G.S.settings.sound !== false;
-  function tone(f, d, type, vol, slide, delay) {
-    if (!ac || !soundOn()) return; const t0 = ac.currentTime + (delay || 0);
-    const o = ac.createOscillator(), g = ac.createGain(); o.type = type || "sine"; o.frequency.setValueAtTime(f, t0);
-    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f * slide), t0 + d);
-    g.gain.setValueAtTime(vol || 0.08, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d); o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + d + 0.02);
-  }
-  PW.sfx = (k) => {
-    if (!ac) return;
-    if (k === "hit") tone(180 + Math.random() * 60, 0.08, "square", 0.04, 0.5);
-    else if (k === "hurt") tone(120, 0.14, "sawtooth", 0.05, 0.5);
-    else if (k === "skill") { tone(300, 0.25, "triangle", 0.07, 2.2); }
-    else if (k === "coin") { tone(880, 0.08, "square", 0.04); tone(1320, 0.1, "square", 0.04, 1, 0.06); }
-    else if (k === "level") { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.22, "triangle", 0.09, 1, i * 0.1)); }
-    else if (k === "pot") tone(500, 0.2, "sine", 0.08, 1.8);
-    else if (k === "click") tone(660, 0.05, "square", 0.03);
-  };
-  const vcache = {}; let curVoice = null;
-  PW.playVoice = (heroId, n) => {
-    if (!soundOn()) return;
-    try {
-      const k = heroId + "_" + n; if (!vcache[k]) { vcache[k] = new Audio("assets/audio/" + k + ".mp3"); vcache[k].preload = "auto"; }
-      if (curVoice && curVoice !== vcache[k]) { curVoice.pause(); curVoice.currentTime = 0; }
-      curVoice = vcache[k]; curVoice.currentTime = 0; const p = curVoice.play(); if (p && p.catch) p.catch(() => {});
-    } catch (e) { /* */ }
-  };
 
   // ---------------------------------------------------------------- items
   PW.makeItem = (slot, tier, rar) => {
@@ -121,8 +91,8 @@
   // ---------------------------------------------------------------- fx helpers
   PW.text = (x, y, s, c, life, size) => G.texts.push({ x, y, s, c: c || "#fff", t: life || 0.9, life: life || 0.9, size: size || 14, vx: U.rnd(-10, 10) });
   PW.ring = (x, y, r, c, dur) => G.rings.push({ x, y, r, c, t: dur || 0.4, dur: dur || 0.4 });
-  PW.part = (x, y, c) => { if (G.parts.length < 420) G.parts.push({ x, y, vx: U.rnd(-90, 90), vy: U.rnd(-140, 20), t: U.rnd(0.4, 0.9), c, s: U.rnd(1.5, 3.5) }); };
-  PW.spark = (x, y, c, n) => { for (let i = 0; i < (n || 6) && G.parts.length < 420; i++) { const a = Math.random() * 6.283, v = U.rnd(80, 220); G.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, t: U.rnd(0.18, 0.4), c, s: U.rnd(1.5, 3), spark: 1 }); } };
+  PW.part = (x, y, c) => { if (G.parts.length < PW.pcap) G.parts.push({ x, y, vx: U.rnd(-90, 90), vy: U.rnd(-140, 20), t: U.rnd(0.4, 0.9), c, s: U.rnd(1.5, 3.5) }); };
+  PW.spark = (x, y, c, n) => { for (let i = 0; i < (n || 6) && G.parts.length < PW.pcap; i++) { const a = Math.random() * 6.283, v = U.rnd(80, 220); G.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, t: U.rnd(0.18, 0.4), c, s: U.rnd(1.5, 3), spark: 1 }); } };
   PW.dmgText = (x, y, d, crit, src) => { const pl = src && (src.isPlayer || src.isComp); G.texts.push({ x: x + U.rnd(-8, 8), y, s: crit ? d + "!" : String(d), c: crit ? "#ffd23f" : pl ? "#ffffff" : "#cfe0ff", t: crit ? 1.0 : 0.75, life: crit ? 1.0 : 0.75, size: crit ? 22 : pl ? 16 : 13, vx: U.rnd(-14, 14), pop: 1, crit }); };
   PW.glow = (e, c, dur) => G.glows.push({ e, c, t: dur || 1, dur: dur || 1 });
   PW.later = (sec, fn) => G.timers.push({ t: sec, fn });
