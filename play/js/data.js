@@ -129,3 +129,61 @@
       face: "assets/img/npc_sak.webp", icon: "assets/img/npc_sak_icon.webp", voice: "Charon" },
   };
 })();
+// v2 data: pets, minions (tamed monsters), passives, ultimates, skill upgrade rules.
+(function () {
+  const PW = window.PW;
+  // bonus keys: atk, def, hp, mp, crit, spd (fractions), xp, gold (fractions), loot (pickup radius px)
+  PW.PETS = {
+    fox:      { name: "จิ้งจอกเพลิงชมพู", bonus: { atk: 0.08 }, color: "#ff7ab8", desc: "พลังโจมตี +8%" },
+    dragon:   { name: "มังกรน้อยฟ้าคราม", bonus: { crit: 0.05 }, color: "#5ab4ff", desc: "คริติคอล +5%" },
+    phoenix:  { name: "ลูกเจี๊ยบฟีนิกซ์", bonus: { hp: 0.1 }, color: "#ffb13c", desc: "HP สูงสุด +10%" },
+    cloudcat: { name: "แมวเมฆ", bonus: { gold: 0.2, loot: 90 }, color: "#e8f4ff", desc: "ทอง +20% · ดูดของไกลขึ้น" },
+    turtle:   { name: "เต่าใบไม้", bonus: { def: 0.12 }, color: "#7ad06a", desc: "ป้องกัน +12%" },
+    starbat:  { name: "ค้างคาวดาวจันทร์", bonus: { xp: 0.15 }, color: "#b88aff", desc: "EXP +15%" },
+  };
+  PW.MINIONS = {
+    slime:    { bonus: { hp: 0.06 }, desc: "HP +6%" },
+    rabbit:   { bonus: { spd: 0.06 }, desc: "ความเร็ว +6%" },
+    wolf:     { bonus: { atk: 0.07 }, desc: "โจมตี +7%" },
+    mushroom: { bonus: { mp: 0.12 }, desc: "MP +12%" },
+    scorpion: { bonus: { crit: 0.04 }, desc: "คริ +4%" },
+    mummy:    { bonus: { def: 0.1 }, desc: "ป้องกัน +10%" },
+    yeti:     { bonus: { hp: 0.12 }, desc: "HP +12%" },
+    boss:     { bonus: { atk: 0.15, def: 0.08 }, desc: "โจมตี +15% · ป้องกัน +8%" },
+  };
+  PW.RARE = { slime: 1, rabbit: 1, wolf: 0.85, mushroom: 0.85, scorpion: 0.7, mummy: 0.7, yeti: 0.55, boss: 0.1 };
+  PW.EVO = [{ n: "", m: 1, s: 1 }, { n: "✦", m: 1.6, s: 1.22 }, { n: "✦✦", m: 2.4, s: 1.45 }];
+  PW.EVO_REQ = [{ lv: 10, gem: 1 }, { lv: 20, gem: 2 }];
+  PW.PET_MAXLV = 30;
+  PW.petXpNext = (l) => Math.round(30 * Math.pow(l, 1.45));
+  // skill upgrades
+  PW.SKILL_MAX = 10;
+  PW.skillMul = (lv) => 1 + 0.13 * (lv - 1);              // damage/heal/shield
+  PW.skillCdMul = (lv) => Math.max(0.64, 1 - 0.04 * (lv - 1)); // cooldown
+  PW.skillAreaMul = (lv) => 1 + 0.05 * (lv - 1);          // radius
+  PW.SKILL_MILESTONE = { 5: "ผลพิเศษ: ดาเมจคริติคอลแรงขึ้น +40% และใช้ MP น้อยลง 25%", 10: "ผลพิเศษ: สกิลสะท้อนซ้ำอีกครั้ง (50%) ฟรี" };
+  PW.PASSIVES = {
+    tank: { n: "ป้อมปราการไร้เทียมทาน", d: "HP +15% และป้องกัน +15%", lv: 5, cost: 2 },
+    fighter: { n: "สายเลือดพยัคฆ์", d: "ดูดเลือด 8% จากดาเมจที่ทำ", lv: 5, cost: 2 },
+    mage: { n: "จันทราอนันต์", d: "ดาเมจสกิล +15% และ MP ฟื้นเร็วขึ้น", lv: 5, cost: 2 },
+    marksman: { n: "ตาเหยี่ยวสายฟ้า", d: "คริติคอล +10%", lv: 5, cost: 2 },
+    assassin: { n: "เงาไร้รอย", d: "ความเร็ว +12% และดาเมจคริ +30%", lv: 5, cost: 2 },
+    support: { n: "พรแห่งบัวทอง", d: "ทีมฟื้น HP ต่อเนื่อง 1.5%/วินาที", lv: 5, cost: 2 },
+  };
+  PW.ULTS = {
+    tank: { n: "ป้อมสิงห์ทองคำ", d: "ระเบิดคลื่นสิงโต ศัตรูรอบตัวมึน 2.5 วิ ทีมได้เกราะใหญ่", cd: 40, mp: 30 },
+    fighter: { n: "พยัคฆ์เพลิงคลั่ง", d: "ฟันรัว 8 ครั้งรอบตัว ได้บัฟโจมตี +60%", cd: 40, mp: 30 },
+    mage: { n: "อุกกาบาตจันทรา", d: "อุกกาบาตน้ำแข็งตกใส่พื้นที่กว้าง ดาเมจมหาศาล", cd: 45, mp: 40 },
+    marksman: { n: "พิโรธเทพอสนี", d: "สายฟ้าฟาดศัตรู 8 ตัวรอบตัว ชะงักทุกตัว", cd: 40, mp: 35 },
+    assassin: { n: "พันเงาสังหาร", d: "วาร์ปฟันศัตรู 6 ตัวติดกัน คริทุกครั้ง", cd: 40, mp: 30 },
+    support: { n: "พรเทพธิดาบัวสวรรค์", d: "ฟื้น HP ทีม 60% + ทำดาเมจรอบตัว + เกราะ", cd: 50, mp: 40 },
+  };
+  PW.ULT_LV = 10; PW.ULT_COST = 3;
+  PW.SHOP_EXTRA = [
+    ["crystal", 1, 60, "ผนึกวิญญาณ x1", "ใช้จับมอนสเตอร์ที่เลือดน้อยมาเป็นสมุน"],
+    ["crystal", 5, 270, "ผนึกวิญญาณ x5", "ประหยัดกว่า"],
+    ["egg", 1, 450, "ไข่สัตว์เลี้ยง", "ฟักได้สัตว์เลี้ยงสุ่ม 1 ใน 6 ตัว"],
+    ["treat", 3, 120, "ขนมสัตว์เลี้ยง x3", "ให้สัตว์เลี้ยง/สมุน +EXP"],
+    ["gem", 1, 900, "อัญมณีวิวัฒนาการ", "ใช้วิวัฒนาการสัตว์เลี้ยง/สมุน"],
+  ];
+})();

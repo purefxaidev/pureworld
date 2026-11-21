@@ -33,7 +33,7 @@
     {
       "name": "[mobile] hero moves (touch stick)",
       "ok": true,
-      "info": "1296->1380"
+      "info": "1296->1344"
     },
     {
       "name": "[mobile] talk button near NPC",
@@ -68,7 +68,7 @@
     {
       "name": "[mobile] fight monsters (kills)",
       "ok": true,
-      "info": "kills=6"
+      "info": "kills=8"
     },
     {
       "name": "[mobile] level up",
@@ -78,7 +78,7 @@
     {
       "name": "[mobile] level-up/skill voice played",
       "ok": true,
-      "info": "['mage_1.mp3', 'mage_1.mp3', 'mage_1.mp3', 'mage_3.mp3', 'mage_2.mp3', 'mage_3.mp3']"
+      "info": "['mage_1.mp3', 'mage_1.mp3', 'mage_1.mp3', 'mage_3.mp3', 'mage_2.mp3', 'mage_2.mp3', 'mage_3.mp3']"
     },
     {
       "name": "[mobile] all 18 skills cast without errors",
@@ -88,7 +88,7 @@
     {
       "name": "[mobile] progress saved to localStorage",
       "ok": true,
-      "info": "lv=4 gold=4980 kills=7"
+      "info": "lv=4 gold=4930 kills=9"
     },
     {
       "name": "[mobile] continue button after reload",
@@ -133,7 +133,7 @@
     {
       "name": "[desktop] hero moves (keyboard)",
       "ok": true,
-      "info": "1296->1382"
+      "info": "1296->1344"
     },
     {
       "name": "[desktop] talk button near NPC",
@@ -168,7 +168,7 @@
     {
       "name": "[desktop] fight monsters (kills)",
       "ok": true,
-      "info": "kills=6"
+      "info": "kills=5"
     },
     {
       "name": "[desktop] level up",
@@ -188,7 +188,7 @@
     {
       "name": "[desktop] progress saved to localStorage",
       "ok": true,
-      "info": "lv=3 gold=4931 kills=6"
+      "info": "lv=3 gold=4923 kills=7"
     },
     {
       "name": "[desktop] continue button after reload",

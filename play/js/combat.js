@@ -16,9 +16,13 @@
     m.lvl = lvl; m.maxHp = Math.round(D.hp * sc); m.hp = m.maxHp; m.atk = Math.round(D.atk * sc); m.def = D.def * sc; m.spd = D.spd; m.xp = Math.round(D.xp * (1 + 0.1 * (lvl - D.lv[0]))); m.gold = D.gold;
     m.x = m.hx; m.y = m.hy; m.dead = false; m.target = null; m.stun = 0; m.slow = 0;
   };
+  // skill context: while a player skill runs, damage/area/heal scale with its upgrade level (also inside delayed PW.later callbacks)
+  let SKC = null; PW.skc = () => SKC;
+  PW.later = (sec, fn) => { const ctx = SKC; G.timers.push({ t: sec, fn: ctx ? () => { const p = SKC; SKC = ctx; try { fn(); } finally { SKC = p; } } : fn }); };
+  const _ring = PW.ring; PW.ring = (x, y, r, c, d) => _ring(x, y, SKC ? r * SKC.area : r, c, d);
   const alive = () => [G.hero].concat(G.allies).filter((h) => !h.dead);
   PW.party = alive;
-  const near = (x, y, r) => G.monsters.filter((m) => !m.dead && Math.hypot(m.x - x, m.y - y) <= r + m.r);
+  const near = (x, y, r) => { if (SKC) r *= SKC.area; return G.monsters.filter((m) => !m.dead && Math.hypot(m.x - x, m.y - y) <= r + m.r); };
   PW.monstersNear = near;
   function nearestMonster(h, range, safe) {
     let best = null, bd = 1e9; const plv = G.hero.level;
@@ -46,35 +50,40 @@
   // ---------------------------------------------------------------- damage
   function dmgOf(h, mul, forceCrit) {
     let d = h.atk * (h.buff.t > 0 ? h.buff.atk : 1) * mul * (0.9 + Math.random() * 0.2);
-    const crit = forceCrit || Math.random() < h.crit; if (crit) d *= 1.6; return { d, crit };
+    const crit = forceCrit || Math.random() < h.crit; if (crit) d *= 1.6 + (h.critDmg || 0) + (SKC && SKC.h === h && SKC.ms5 ? 0.4 : 0); return { d, crit };
   }
   function hit(h, m, mul, o) {
-    o = o || {}; const r = dmgOf(h, mul, o.crit); const d = Math.max(1, Math.round(r.d - m.def * 0.5));
+    o = o || {}; if (SKC && SKC.h === h) mul *= SKC.mul; const r = dmgOf(h, mul, o.crit); const d = Math.max(1, Math.round(r.d - m.def * 0.5));
     damageMonster(m, d, h, r.crit, o);
   }
   function damageMonster(m, d, src, crit, o) {
     if (m.dead) return; m.hp -= d; m.hurt = 0.12; if (!m.target || m.target.dead) m.target = src;
     if (o.stun) m.stun = Math.max(m.stun, o.stun); if (o.slow) m.slow = Math.max(m.slow, o.slow);
     if (o.knock) { const a = Math.atan2(m.y - src.y, m.x - src.x); tryMove(m, Math.cos(a) * o.knock, Math.sin(a) * o.knock); }
-    PW.text(m.x, m.y - m.r - 8, (crit ? "CRIT " : "") + d, crit ? "#ffd23f" : (src.isPlayer ? "#fff" : "#d8e6ff"), crit ? 1.1 : 0.8, crit ? 17 : 13);
-    if (src.isPlayer) PW.sfx("hit"); for (let i = 0; i < 3; i++) PW.part(m.x, m.y, crit ? "#ffd23f" : "#fff");
+    PW.dmgText(m.x, m.y - m.r * 2.2, d, crit, src);
+    if (src.isPlayer) { PW.sfx("hit"); if (src.lifesteal) src.hp = Math.min(src.maxHp, src.hp + d * src.lifesteal); }
+    PW.spark(m.x, m.y - m.r, crit ? "#ffd23f" : (src.color || "#fff"), crit ? 9 : 5);
     if (m.hp <= 0) killMonster(m, src);
   }
   function killMonster(m, src) {
-    m.dead = true; m.respT = PW.MONSTERS[m.type].boss ? 90 : 14; m.target = null; const D = PW.MONSTERS[m.type]; const h = G.hero, S = G.S;
-    const pen = U.clamp(1 - (h.level - m.lvl - 4) * 0.12, 0.2, 1); const xp = Math.max(1, Math.round(m.xp * pen)); const gold = Math.round(m.gold * U.rnd(0.8, 1.4));
-    S.gold += gold; S.kills++; PW.text(m.x, m.y - 30, "+" + xp + " XP", "#9be7ff", 1.1, 13); PW.text(m.x, m.y - 14, "+" + gold + " G", "#ffe066", 1.1, 12); PW.sfx("coin");
-    for (let i = 0; i < 10; i++) PW.part(m.x, m.y, D.color);
-    PW.gainXp(xp);
+    m.dead = true; m.dieT = 0.5; m.respT = PW.MONSTERS[m.type].boss ? 90 : 14; m.target = null; const D = PW.MONSTERS[m.type]; const h = G.hero, S = G.S; const B = PW.bonus ? PW.bonus() : {};
+    const pen = U.clamp(1 - (h.level - m.lvl - 4) * 0.12, 0.2, 1); const xp = Math.max(1, Math.round(m.xp * pen * (1 + (B.xp || 0)))); const gold = Math.round(m.gold * U.rnd(0.8, 1.4) * (1 + (B.gold || 0)));
+    S.kills++; PW.text(m.x, m.y - 30, "+" + xp + " XP", "#9be7ff", 1.1, 13); PW.drop(m.x, m.y, "gold", gold);
+    for (let i = 0; i < 14; i++) PW.part(m.x, m.y - m.r, D.color); PW.spark(m.x, m.y - m.r, "#fff", 10);
+    PW.gainXp(xp); PW.petXp && PW.petXp(Math.ceil(xp * 0.6));
+    if (Math.random() < (D.boss ? 1 : 0.06)) PW.drop(m.x, m.y, "crystal", D.boss ? 3 : 1);
+    if (Math.random() < (D.boss ? 1 : 0.012)) PW.drop(m.x, m.y, "egg", 1);
+    if (Math.random() < (D.boss ? 1 : 0.012)) PW.drop(m.x, m.y, "gem", 1);
+    if (Math.random() < 0.04) PW.drop(m.x, m.y, "treat", 1);
     // quests
     const q = PW.QUESTS[S.qIdx]; if (q && q.m === m.type && S.qProg < q.n) { S.qProg++; if (S.qProg >= q.n) PW.toast("ภารกิจสำเร็จ! ไปกดรับรางวัลที่เมนู \"ภารกิจ\""); }
     // drops
-    if (Math.random() < 0.22) { S.hpPot++; PW.text(m.x + 10, m.y - 44, "+ยาแดง", "#ff8a8a", 1.2, 12); }
-    if (Math.random() < 0.12) { S.mpPot++; PW.text(m.x - 10, m.y - 52, "+ยาน้ำเงิน", "#8ab4ff", 1.2, 12); }
+    if (Math.random() < 0.22) PW.drop(m.x, m.y, "hpot", 1);
+    if (Math.random() < 0.12) PW.drop(m.x, m.y, "mpot", 1);
     const tierMap = { meadow: 1, forest: 2, desert: 3, ice: 4 }; const tier = D.boss ? 5 : tierMap[D.zone] + (Math.random() < 0.15 ? 1 : 0);
     if (D.boss || Math.random() < 0.07) {
       const slot = ["weapon", "armor", "charm"][U.ri(0, 2)]; const roll = Math.random(); const rar = D.boss ? 2 : roll < 0.75 ? 0 : roll < 0.95 ? 1 : 2;
-      if (S.bag.length < 40) { const it = PW.makeItem(slot, Math.min(6, tier), rar); S.bag.push(it); PW.toast("ได้ไอเทม: " + it.name, 2800); PW.text(m.x, m.y - 64, it.name, PW.RARITY[rar].c, 1.6, 13); }
+      const it = PW.makeItem(slot, Math.min(6, tier), rar); PW.drop(m.x, m.y, "item", 1, it);
     }
     PW.updateHud && PW.updateHud(true);
   }
@@ -84,12 +93,13 @@
     if (d <= 0) return; h.hp -= d; h.hurt = 0.15; PW.text(h.x, h.y - 24, "-" + d, h.isPlayer ? "#ff6a6a" : "#ffa0a0", 0.8, 13); if (h.isPlayer) { PW.sfx("hurt"); G.shake = 0.15; }
     if (h.hp <= 0) { h.hp = 0; h.dead = true; h.moving = false; if (h.isPlayer) PW.onPlayerDead(); else { h.reviveT = 14; PW.text(h.x, h.y - 30, "ล้มแล้ว!", "#fff", 1.2, 14); } }
   }
-  function healHero(h, a) { if (h.dead) return; a = Math.round(a); h.hp = Math.min(h.maxHp, h.hp + a); PW.text(h.x, h.y - 28, "+" + a, "#7dff9b", 0.9, 13); }
-  function shieldHero(h, a, dur) { h.shield = Math.max(h.shield, a); h.shieldT = dur; PW.ring(h.x, h.y, 26, "#8ae8ff", 0.5); }
+  function healHero(h, a) { if (h.dead) return; if (SKC) a *= SKC.mul; a = Math.round(a); h.hp = Math.min(h.maxHp, h.hp + a); PW.text(h.x, h.y - 28, "+" + a, "#7dff9b", 0.9, 13); }
+  function shieldHero(h, a, dur) { if (SKC) a *= SKC.mul; h.shield = Math.max(h.shield, a); h.shieldT = dur; PW.ring(h.x, h.y, 26, "#8ae8ff", 0.5); }
   PW.healHero = healHero;
 
   // ---------------------------------------------------------------- projectiles
   function shoot(h, ang, o) {
+    if (SKC && SKC.h === h) o = Object.assign({}, o, { mul: (o.mul || 1) * SKC.mul, r: (o.r || 6) * Math.sqrt(SKC.area) });
     G.projs.push({ x: h.x + Math.cos(ang) * 16, y: h.y + Math.sin(ang) * 16, vx: Math.cos(ang) * (o.speed || 380), vy: Math.sin(ang) * (o.speed || 380), life: (o.range || 220) / (o.speed || 380), r: o.r || 6, mul: o.mul || 1, pierce: !!o.pierce, hits: new Set(), from: h, c: o.c || "#fff", slow: o.slow, stun: o.stun, size: o.size || 6, crit: o.crit, kind: o.kind || "orb", ang });
   }
   function updateProjs(dt) {
@@ -110,7 +120,7 @@
   PW.basicAttack = (h, m) => {
     const H = PW.HEROES[h.id]; if (h.atkT > 0 || h.stun > 0 || h.dead) return false;
     h.atkT = H.atkCd; h.face = U.ang(h, m); h.cast = 0.18;
-    if (!H.ranged) { hit(h, m, 1.0); const a = h.face; PW.ring(h.x + Math.cos(a) * 26, h.y + Math.sin(a) * 26, 18, H.color, 0.2); }
+    if (!H.ranged) { hit(h, m, 1.0); const a = h.face; G.slashes.push({ x: h.x, y: h.y - 14, a, r: 34, c: H.color, t: 0.2, dur: 0.2, flip: Math.random() < 0.5 }); }
     else shoot(h, h.face, { mul: 1.0, speed: 400, range: H.range + 60, r: 7, c: H.color, size: 5 });
     return true;
   };
@@ -155,9 +165,14 @@
   let lastVoice = -99;
   PW.castSkill = (h, i) => {
     const def = PW.HEROES[h.id].skills[i]; if (h.dead || h.cds[i] > 0 || h.stun > 0) return false;
-    if (h.isPlayer && h.mp < def.mp) { PW.toast("มานาไม่พอ"); return false; }
-    const ok = SK[h.id][i](h); if (ok === false) { if (h.isPlayer) PW.toast("ไม่มีเป้าหมายในระยะ"); return false; }
-    h.cds[i] = def.cd; h.cast = 0.35; if (h.isPlayer) { h.mp -= def.mp; PW.sfx("skill"); if (G.t - lastVoice > 6) { lastVoice = G.t; PW.playVoice(h.id, 2); } }
+    const lv = h.isPlayer && PW.skillLv ? PW.skillLv(i) : 1; const cost = PW.skillCost(h, i);
+    if (h.isPlayer && h.mp < cost) { if (!G.autoHunt) PW.toast("มานาไม่พอ"); return false; }
+    const ctx = { h, mul: PW.skillMul(lv) * (h.skillDmg || 1), area: PW.skillAreaMul(lv), ms5: lv >= 5 };
+    let ok; SKC = ctx; try { ok = SK[h.id][i](h); } finally { SKC = null; }
+    if (ok === false) { if (h.isPlayer && !G.autoHunt) PW.toast("ไม่มีเป้าหมายในระยะ"); return false; }
+    h.cds[i] = def.cd * PW.skillCdMul(lv); h.cast = 0.35; PW.skillFx && PW.skillFx(h, i);
+    if (h.isPlayer) { h.mp -= cost; PW.sfx("skill"); if (G.t - lastVoice > 6) { lastVoice = G.t; PW.playVoice(h.id, 2); } }
+    if (h.isPlayer && lv >= 10) PW.later(0.55, () => { if (h.dead) return; const e = Object.assign({}, ctx, { mul: ctx.mul * 0.5 }); SKC = e; try { SK[h.id][i](h); } finally { SKC = null; } PW.text(h.x, h.y - 70, "ECHO!", "#9fe4ff", 0.8, 14); });
     return true;
   };
   PW.usePotion = (kind) => {
@@ -170,7 +185,7 @@
   // ---------------------------------------------------------------- hero AI (allies + player auto-hunt)
   function aiWants(h, i, e) {
     const def = PW.HEROES[h.id].skills[i]; if (h.cds[i] > 0) return false;
-    if (h.isPlayer && h.mp < def.mp) return false;
+    if (h.isPlayer && h.mp < PW.skillCost(h, i)) return false;
     if (def.type === "heal") return alive().some((p) => Math.hypot(p.x - h.x, p.y - h.y) < 260 && p.hp < p.maxHp * 0.6);
     if (def.type === "buff") {
       if (!nearestMonster(h, 230, false)) return false;
@@ -190,7 +205,7 @@
       const d = Math.hypot(e.x - h.x, e.y - h.y) - e.r; const a = U.ang(h, e);
       if (H.ranged) { if (d > H.range * 0.85) { mx = Math.cos(a); my = Math.sin(a); } else if (d < 60) { mx = -Math.cos(a); my = -Math.sin(a); } }
       else if (d > H.range * 0.6) { mx = Math.cos(a); my = Math.sin(a); }
-      for (let i = 0; i < 3; i++) if (aiWants(h, i, e)) { h.face = a; if (PW.castSkill(h, i)) break; }
+      if (!h.isPlayer || G.S.settings.autoSkill !== false) { for (let i = 0; i < 3; i++) if (aiWants(h, i, e)) { h.face = a; if (PW.castSkill(h, i)) break; } if (h.isPlayer && PW.ultReady && PW.ultReady() && (near(h.x, h.y, 200).length >= 3 || PW.MONSTERS[e.type].boss || e.maxHp > h.atk * 25)) PW.castUlt(h); }
       if (d <= H.range) PW.basicAttack(h, e);
     } else if (leader) {
       const off = h.idx === 0 ? -0.9 : 0.9; const tx = leader.x + Math.cos(leader.face + Math.PI + off) * 60, ty = leader.y + Math.sin(leader.face + Math.PI + off) * 60;
@@ -239,19 +254,7 @@
       h.atkT -= dt; h.hurt = Math.max(0, h.hurt - dt); h.cast = Math.max(0, h.cast - dt); for (let i = 0; i < 3; i++) h.cds[i] = Math.max(0, h.cds[i] - dt);
       if (h.stun > 0) h.stun -= dt; if (h.slow > 0) h.slow -= dt; if (h.buff.t > 0) h.buff.t -= dt; if (h.shieldT > 0) { h.shieldT -= dt; if (h.shieldT <= 0) h.shield = 0; }
       h.mp = Math.min(h.maxMp, h.mp + h.maxMp * 0.012 * dt); if (PW.zoneAt(h.x, h.y).safe) { h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.08 * dt); h.mp = Math.min(h.maxMp, h.mp + h.maxMp * 0.08 * dt); } else h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.004 * dt);
-      const inp = G.input; const manual = Math.hypot(inp.x, inp.y) > 0.12;
-      if (manual) { inp.manualT = 0.5; moveHero(h, inp.x, inp.y, dt); }
-      else inp.manualT = Math.max(0, inp.manualT - dt);
-      const H = PW.HEROES[h.id];
-      if (!manual && G.autoHunt && inp.manualT <= 0 && !PW.zoneAt(h.x, h.y).safe) {
-        const r = heroAI(h, dt, null); moveHero(h, r.mx, r.my, dt);
-        if (h.hp < h.maxHp * 0.4 && S.hpPot > 0) PW.usePotion("hp"); if (h.mp < h.maxMp * 0.15 && S.mpPot > 0) PW.usePotion("mp");
-      } else if (!manual && G.autoHunt && PW.zoneAt(h.x, h.y).safe) {
-        // in town: walk out toward the nearest hunting zone entrance
-        const zid = pickHuntZone(); const z = PW.ZONES.find((q) => q.id === zid); const tx = (z.rect[0] + z.rect[2] / 2) * T, ty = (z.rect[1] + z.rect[3] / 2) * T; const dx = tx - h.x, dy = ty - h.y, d = Math.hypot(dx, dy) || 1; moveHero(h, dx / d, dy / d, dt);
-      } else if (S.settings.autoAtk) {
-        const e = nearestMonster(h, H.range, false); if (e && !manual) { h.face = U.ang(h, e); PW.basicAttack(h, e); } else if (e && manual) PW.basicAttack(h, e);
-      }
+      PW.playerControl(h, dt, S);
     } else h.moving = false;
     // allies
     G.allies.forEach((a, i) => {
@@ -262,7 +265,14 @@
       if (h.dead) return; const r = heroAI(a, dt, h); moveHero(a, r.mx, r.my, dt);
     });
     for (const m of G.monsters) { if (m.dead || Math.abs(m.x - h.x) < 900 && Math.abs(m.y - h.y) < 700 || m.hp < m.maxHp) updateMonster(m, dt); else if (m.dead) updateMonster(m, dt); }
-    updateProjs(dt);
+    updateProjs(dt); PW.updateComps && PW.updateComps(dt); PW.updateLoot && PW.updateLoot(dt);
+    for (const m of G.monsters) if (m.dead && m.dieT > 0) m.dieT -= dt;
+    for (const sl of G.slashes) sl.t -= dt; G.slashes = G.slashes.filter((q) => q.t > 0);
+    for (const k of ["meteors", "bolts", "zaps", "glows"]) { const L = G[k]; for (const q of L) q.t -= dt; G[k] = L.filter((q) => q.t > 0); }
+    for (const q of G.capFx) q.t += dt; G.capFx = G.capFx.filter((q) => q.t < q.dur); if (G.flash) { G.flash.t -= dt; if (G.flash.t <= 0) G.flash = null; }
+    for (const m of G.monsters) if (m.captured > 0) m.captured -= dt;
+    if (h.regenAura) for (const p of alive()) p.hp = Math.min(p.maxHp, p.hp + p.maxHp * 0.015 * dt);
+    if (h.mpRegen) h.mp = Math.min(h.maxMp, h.mp + h.maxMp * h.mpRegen * dt);
     // fx
     for (const t of G.texts) { t.t -= dt; t.y -= 26 * dt; t.x += t.vx * dt; } G.texts = G.texts.filter((t) => t.t > 0);
     for (const r of G.rings) r.t -= dt; G.rings = G.rings.filter((r) => r.t > 0);
@@ -273,13 +283,13 @@
     // zone
     const z = PW.zoneAt(h.x, h.y); if (z.id !== G.lastZone) { G.lastZone = z.id; PW.showZone && PW.showZone(z); }
     // camera
-    const k = Math.min(1, dt * 7); G.cam.x += (h.x - G.cam.x) * k; G.cam.y += (h.y - G.cam.y) * k;
+    const lead = h.moving ? 38 : 0; const k = Math.min(1, dt * 5); G.cam.x += (h.x + Math.cos(h.face) * lead - G.cam.x) * k; G.cam.y += (h.y + Math.sin(h.face) * lead * 0.7 - G.cam.y) * k;
     // autosave
     G.saveT = (G.saveT || 0) + dt; if (G.saveT > 8) { G.saveT = 0; PW.save(); }
   };
   function pickHuntZone() { const lv = G.hero.level; return lv >= 16 ? "ice" : lv >= 11 ? "desert" : lv >= 6 ? "forest" : "meadow"; }
 
-  PW.onPlayerDead = () => { G.autoHunt = false; PW.showDeath && PW.showDeath(); };
+  PW.onPlayerDead = () => { G.moveTo = null; PW.showDeath && PW.showDeath(); };
   PW.revive = () => {
     const h = G.hero, S = G.S; const loss = Math.floor(S.gold * 0.1); S.gold -= loss; h.dead = false; h.hp = Math.round(h.maxHp * 0.5); h.mp = Math.round(h.maxMp * 0.5);
     h.x = G.W.spawn.x; h.y = G.W.spawn.y; h.shield = 0; h.stun = 0; for (const a of G.allies) { a.dead = false; a.hp = a.maxHp; a.x = h.x; a.y = h.y; }
@@ -287,4 +297,74 @@
     PW.save(); PW.toast("ฟื้นขึ้นที่เมืองพิวร์ (เสียทอง " + loss + ")");
   };
   PW.pickHuntZone = pickHuntZone;
+
+  // ---------------------------------------------------------------- player control: joystick/keys > tap-to-move > auto-farm > auto-attack
+
+  // ---------------------------------------------------------------- grid pathfinding (BFS, 8-way, no corner cutting)
+  const MW = 80, MH = 56;
+  function walkGrid() {
+    const W = G.W; if (W.walk) return W.walk; const g = new Uint8Array(MW * MH);
+    for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) g[j * MW + i] = PW.collides(W, (i + 0.5) * T, (j + 0.5) * T, 9) ? 0 : 1;
+    W.walk = g; return g;
+  }
+  PW.findPath = (sx, sy, tx, ty) => {
+    const g = walkGrid(); const cl = (v, m) => Math.max(0, Math.min(m - 1, v));
+    let si = cl(Math.floor(sx / T), MW), sj = cl(Math.floor(sy / T), MH), ti = cl(Math.floor(tx / T), MW), tj = cl(Math.floor(ty / T), MH);
+    const prev = new Int32Array(MW * MH).fill(-1), start = sj * MW + si, goal = tj * MW + ti; prev[start] = start;
+    const q = new Int32Array(MW * MH); let qh = 0, qt = 0; q[qt++] = start; let best = start, bd = 1e9;
+    const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+    while (qh < qt) {
+      const cur = q[qh++]; const ci = cur % MW, cj = (cur / MW) | 0; const dd = Math.abs(ci - ti) + Math.abs(cj - tj); if (dd < bd) { bd = dd; best = cur; } if (cur === goal) break;
+      for (const [di, dj] of DIRS) {
+        const ni = ci + di, nj = cj + dj; if (ni < 0 || nj < 0 || ni >= MW || nj >= MH) continue; const n = nj * MW + ni; if (prev[n] >= 0 || !g[n]) continue;
+        if (di && dj && (!g[cj * MW + ni] || !g[nj * MW + ci])) continue; prev[n] = cur; q[qt++] = n;
+      }
+    }
+    const end = prev[goal] >= 0 ? goal : best; const pts = []; let c = end; while (c !== start) { pts.push({ x: (c % MW + 0.5) * T, y: (((c / MW) | 0) + 0.5) * T }); c = prev[c]; if (c < 0) break; }
+    pts.reverse(); if (end === goal) pts.push({ x: tx, y: ty });
+    // string-pull: drop waypoints that are directly reachable
+    const clear = (a, b) => { const d = Math.hypot(b.x - a.x, b.y - a.y), n = Math.ceil(d / 10); for (let k = 1; k < n; k++) { const x = a.x + (b.x - a.x) * k / n, y = a.y + (b.y - a.y) * k / n; if (PW.collides(G.W, x, y, 11)) return false; } return true; };
+    const out = []; let a = { x: sx, y: sy }, i = 0; while (i < pts.length) { let j = pts.length - 1; while (j > i && !clear(a, pts[j])) j--; out.push(pts[j]); a = pts[j]; i = j + 1; }
+    return out;
+  };
+  // walk h toward (tx,ty) along a cached path; returns remaining distance
+  function pathTo(h, tx, ty, dt) {
+    const P = h._path; const key = Math.round(tx / T) + "," + Math.round(ty / T);
+    if (!P || P.key !== key || G.t > P.t + 4 || P.stuck > 0.5) h._path = { key, t: G.t, pts: PW.findPath(h.x, h.y, tx, ty), stuck: 0 };
+    const pp = h._path; while (pp.pts.length && Math.hypot(pp.pts[0].x - h.x, pp.pts[0].y - h.y) < 8) pp.pts.shift();
+    const wp = pp.pts[0] || { x: tx, y: ty }; const dx = wp.x - h.x, dy = wp.y - h.y, d = Math.hypot(dx, dy) || 1; const ox = h.x, oy = h.y;
+    moveHero(h, dx / d, dy / d, dt); if (Math.hypot(h.x - ox, h.y - oy) < 0.1) pp.stuck += dt; else pp.stuck = 0;
+    return Math.hypot(tx - h.x, ty - h.y);
+  }
+  PW.pathTo = pathTo;
+  PW.playerControl = (h, dt, S) => {
+    const inp = G.input, H = PW.HEROES[h.id]; const manual = Math.hypot(inp.x, inp.y) > 0.12;
+    if (manual) { inp.manualT = 1.2; G.moveTo = null; moveHero(h, inp.x, inp.y, dt); }
+    else inp.manualT = Math.max(0, inp.manualT - dt);
+    h.potT = Math.max(0, (h.potT || 0) - dt);
+    if (G.autoHunt && h.potT <= 0) { const pp = (S.settings.potPct || 40) / 100; if (h.hp < h.maxHp * pp && S.hpPot > 0) { PW.usePotion("hp"); h.potT = 1.2; } else if (h.mp < h.maxMp * 0.15 && S.mpPot > 0) { PW.usePotion("mp"); h.potT = 1.2; } }
+    if (!manual && G.moveTo) {
+      const mt = G.moveTo; let tx = mt.x, ty = mt.y;
+      if (mt.m) { if (mt.m.dead) { G.moveTo = null; return; } tx = mt.m.x; ty = mt.m.y; }
+      const dx = tx - h.x, dy = ty - h.y, d = Math.hypot(dx, dy); const stop = mt.m ? H.range * 0.85 + mt.m.r : mt.npc ? 56 : 6;
+      if (d > stop) { const ox = h.x, oy = h.y; pathTo(h, tx, ty, dt); if (Math.hypot(h.x - ox, h.y - oy) < 0.15) { mt.stuck = (mt.stuck || 0) + dt; if (mt.stuck > 1.5) { G.moveTo = null; h.moving = false; } } else mt.stuck = 0; }
+      else if (mt.m) { h.moving = false; h.face = U.ang(h, mt.m); PW.basicAttack(h, mt.m); }
+      else { h.moving = false; const npc = mt.npc; G.moveTo = null; if (npc && PW.onReachNpc) PW.onReachNpc(npc); }
+      if (S.settings.autoAtk && !mt.m) { const e = nearestMonster(h, H.range, false); if (e) PW.basicAttack(h, e); }
+      return;
+    }
+    if (!manual && G.autoHunt && inp.manualT <= 0) return autoFarm(h, dt, S, H);
+    if (S.settings.autoAtk) { const e = nearestMonster(h, H.range, false); if (e && !manual) { h.face = U.ang(h, e); PW.basicAttack(h, e); } else if (e && manual) PW.basicAttack(h, e); }
+  };
+  function autoFarm(h, dt, S, H) {
+    const lt = PW.nearestLoot ? PW.nearestLoot(h, 240) : null; const close = nearestMonster(h, 110, false);
+    if (lt && !close) { const dx = lt.x - h.x, dy = lt.y - h.y, d = Math.hypot(dx, dy) || 1; moveHero(h, dx / d, dy / d, dt); return; }
+    const z = PW.zoneAt(h.x, h.y), hz = pickHuntZone();
+    if (z.safe || (z.id !== hz && !nearestMonster(h, 300, true))) {
+      const zz = PW.ZONES.find((q) => q.id === hz); const tx = (zz.rect[0] + zz.rect[2] / 2) * T, ty = (zz.rect[1] + zz.rect[3] / 2) * T; const dx = tx - h.x, dy = ty - h.y, d = Math.hypot(dx, dy) || 1;
+      void dx; void dy; void d; pathTo(h, tx, ty, dt); if (close) PW.basicAttack(h, close); return;
+    }
+    const r = heroAI(h, dt, null); moveHero(h, r.mx, r.my, dt);
+  }
+  PW._cb = { hit, near, shoot, healHero, shieldHero, tryMove, nearestMonster, moveHero, alive, damageMonster };
 })();

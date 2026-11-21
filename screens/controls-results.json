@@ -1,0 +1,215 @@
+{
+  "checks": [
+    {
+      "name": "[iphone] controls hint shown on first play",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[iphone] joystick visible bottom-left",
+      "ok": true,
+      "info": "{'x': 16, 'y': 708, 'width': 116, 'height': 116}"
+    },
+    {
+      "name": "[iphone] CDP touch joystick → right",
+      "ok": true,
+      "info": "(1296,960)->(1344,960)"
+    },
+    {
+      "name": "[iphone] hint dismissed after first move",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[iphone] CDP touch joystick → down",
+      "ok": true,
+      "info": "(1296,960)->(1296,1087)"
+    },
+    {
+      "name": "[iphone] CDP touch joystick → left",
+      "ok": true,
+      "info": "(1296,960)->(1216,960)"
+    },
+    {
+      "name": "[iphone] touch lower-left area (floating joystick) → right",
+      "ok": true,
+      "info": "(1296,960)->(1344,960)"
+    },
+    {
+      "name": "[iphone] drag on map → down",
+      "ok": true,
+      "info": "(1296,960)->(1296,1088)"
+    },
+    {
+      "name": "[iphone] tap ground → walks there",
+      "ok": true,
+      "info": "(1296,960)->(1346,980)"
+    },
+    {
+      "name": "[iphone] tap NPC → walks over and opens chat",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[iphone] nothing overlays the joystick",
+      "ok": true,
+      "info": "joy"
+    },
+    {
+      "name": "[android] controls hint shown on first play",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[android] joystick visible bottom-left",
+      "ok": true,
+      "info": "{'x': 16, 'y': 779, 'width': 116, 'height': 116}"
+    },
+    {
+      "name": "[android] CDP touch joystick → right",
+      "ok": true,
+      "info": "(1296,960)->(1344,960)"
+    },
+    {
+      "name": "[android] hint dismissed after first move",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[android] CDP touch joystick → down",
+      "ok": true,
+      "info": "(1296,960)->(1296,1087)"
+    },
+    {
+      "name": "[android] CDP touch joystick → left",
+      "ok": true,
+      "info": "(1296,960)->(1216,960)"
+    },
+    {
+      "name": "[android] touch lower-left area (floating joystick) → right",
+      "ok": true,
+      "info": "(1296,960)->(1344,960)"
+    },
+    {
+      "name": "[android] drag on map → down",
+      "ok": true,
+      "info": "(1296,960)->(1296,1088)"
+    },
+    {
+      "name": "[android] tap ground → walks there",
+      "ok": true,
+      "info": "(1296,960)->(1346,981)"
+    },
+    {
+      "name": "[android] tap NPC → walks over and opens chat",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[android] nothing overlays the joystick",
+      "ok": true,
+      "info": "joy"
+    },
+    {
+      "name": "[android-landscape] controls hint shown on first play",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[android-landscape] joystick visible bottom-left",
+      "ok": true,
+      "info": "{'x': 16, 'y': 283.20001220703125, 'width': 108.80000305175781, 'height': 108.79998779296875}"
+    },
+    {
+      "name": "[android-landscape] CDP touch joystick → right",
+      "ok": true,
+      "info": "(1296,960)->(1344,960)"
+    },
+    {
+      "name": "[android-landscape] hint dismissed after first move",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[android-landscape] CDP touch joystick → down",
+      "ok": true,
+      "info": "(1296,960)->(1296,1087)"
+    },
+    {
+      "name": "[android-landscape] CDP touch joystick → left",
+      "ok": true,
+      "info": "(1296,960)->(1216,960)"
+    },
+    {
+      "name": "[android-landscape] touch lower-left area (floating joystick) → right",
+      "ok": true,
+      "info": "(1296,960)->(1344,960)"
+    },
+    {
+      "name": "[android-landscape] drag on map → down",
+      "ok": true,
+      "info": "(1296,960)->(1296,1088)"
+    },
+    {
+      "name": "[android-landscape] tap ground → walks there",
+      "ok": true,
+      "info": "(1296,960)->(1344,980)"
+    },
+    {
+      "name": "[android-landscape] tap NPC → walks over and opens chat",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[android-landscape] nothing overlays the joystick",
+      "ok": true,
+      "info": "joy"
+    },
+    {
+      "name": "[desktop] joystick visible on desktop too",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[desktop] keyboard D → right",
+      "ok": true,
+      "info": "(1296,960)->(1345,960)"
+    },
+    {
+      "name": "[desktop] keyboard ← → left",
+      "ok": true,
+      "info": "(1296,960)->(1215,960)"
+    },
+    {
+      "name": "[desktop] keyboard S → down",
+      "ok": true,
+      "info": "(1296,960)->(1296,1052)"
+    },
+    {
+      "name": "[desktop] Thai keyboard layout (key 'ก', code KeyD) → right",
+      "ok": true,
+      "info": "(1296,960)->(1345,960)"
+    },
+    {
+      "name": "[desktop] mouse click ground → walks there",
+      "ok": true,
+      "info": "(1296,960)->(1182,989)"
+    },
+    {
+      "name": "[desktop] mouse drag on map → right",
+      "ok": true,
+      "info": "(1296,960)->(1345,960)"
+    },
+    {
+      "name": "[desktop] click monster → targets, walks over and attacks",
+      "ok": true,
+      "info": "target=True hp 34->9 kills+0"
+    },
+    {
+      "name": "no console errors / page errors",
+      "ok": true,
+      "info": "[]"
+    }
+  ],
+  "errors": []
+}

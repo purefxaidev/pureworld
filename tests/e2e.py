@@ -4,6 +4,8 @@ BASE_URL defaults to http://127.0.0.1:8080 (python3 -m http.server 8080 from rep
 """
 import asyncio, json, sys, re, os
 from playwright.async_api import async_playwright
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _browser import launch_opts
 
 BASE = "http://127.0.0.1:8080"
 LIVE = None
@@ -30,7 +32,7 @@ async def newpage(b, mobile, live=False):
     return ctx, pg
 
 async def ev(pg, js): return await pg.evaluate(js)
-async def shot(pg, name): await pg.screenshot(path=os.path.join(SHOTS, name))
+async def shot(pg, name): await pg.screenshot(path=os.path.join(SHOTS, "v2_e2e_" + name))
 
 async def run_game(b, mobile, tag):
     ctx, pg = await newpage(b, mobile)
@@ -51,6 +53,7 @@ async def run_game(b, mobile, tag):
     await pg.click('[data-hero="mage"]'); await pg.click("#t-start")
     await pg.wait_for_function("window.__PW.G.running===true")
     await pg.wait_for_timeout(1200)
+    if await pg.locator("#hint").is_visible(): await pg.click("#hint-ok")
     check(f"[{tag}] game started as mage", await ev(pg, "window.__PW.G.hero.id") == "mage")
     await shot(pg, f"{tag}_02_town.png")
     # movement
@@ -97,7 +100,7 @@ async def run_game(b, mobile, tag):
     await ev(pg, "(()=>{const g=window.__PW.G;const m=g.monsters.find(m=>m.type==='slime');g.hero.x=m.x-60;g.hero.y=m.y;g.allies.forEach((a,i)=>{a.x=g.hero.x-20;a.y=g.hero.y+20*i});g.cam.x=g.hero.x;g.cam.y=g.hero.y;})()")
     await pg.wait_for_timeout(300)
     await pg.keyboard.press("2") if not mobile else await pg.click("#btn-s1")
-    await pg.click("#tg-auto")
+    await pg.click("#btn-auto")
     lv0 = await ev(pg, "window.__PW.G.hero.level"); shot_taken = False
     for i in range(60):
         await pg.wait_for_timeout(1000)
@@ -115,7 +118,7 @@ async def run_game(b, mobile, tag):
     await pg.wait_for_timeout(500)
     check(f"[{tag}] all 18 skills cast without errors", len(R["errors"]) == errs0)
     # save & reload continue
-    await pg.click("#tg-auto") if await ev(pg, "window.__PW.G.autoHunt") else None
+    await pg.click("#btn-auto") if await ev(pg, "window.__PW.G.autoHunt") else None
     await ev(pg, "window.__PW.G.hero.hp=window.__PW.G.hero.maxHp");  # keep alive
     saved = await ev(pg, "(()=>{window.__PW.G.paused=true;window.__PW.PW.save();return JSON.parse(localStorage.getItem('pureworld_save_v1'))})()")
     lv = saved["level"]
@@ -163,7 +166,7 @@ async def run_live(b):
 
 async def main():
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox", "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"])
+        b = await p.chromium.launch(**launch_opts(["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"]))
         await run_game(b, True, "mobile")
         await run_game(b, False, "desktop")
         if LIVE: await run_live(b)

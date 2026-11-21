@@ -4,3 +4,8 @@ node_modules/
 .env
 *.log
 __pycache__/
+
+# local test output
+screens/v2_e2e_*
+screens/smoke_game.png
+.venv/

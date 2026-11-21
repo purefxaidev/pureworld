@@ -1,0 +1,135 @@
+{
+  "checks": [
+    {
+      "name": "level-ups grant skill points",
+      "ok": true,
+      "info": "Lv12 sp 0->11"
+    },
+    {
+      "name": "upgrade skill 1 twice (Lv1→3)",
+      "ok": true,
+      "info": "3"
+    },
+    {
+      "name": "unlock passive",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "unlock ultimate",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "ultimate button appears",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "upgraded skill has shorter cooldown",
+      "ok": true,
+      "info": "2.74 < 3"
+    },
+    {
+      "name": "cast ultimate (cooldown starts)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "hatch egg → pet, auto-equipped",
+      "ok": true,
+      "info": "pets=1 on=1"
+    },
+    {
+      "name": "feed treats → pet levels up",
+      "ok": true,
+      "info": "Lv1->2"
+    },
+    {
+      "name": "evolve pet at Lv10 with gem",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "active pet gives stat bonus",
+      "ok": true,
+      "info": "{'gold': 0.4352, 'loot': 90}"
+    },
+    {
+      "name": "pet follows the player",
+      "ok": true,
+      "info": "dist=31"
+    },
+    {
+      "name": "capture chance shown for low-HP target",
+      "ok": true,
+      "info": "68%"
+    },
+    {
+      "name": "failed capture consumes crystal + counts fail",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "successful capture → minion + book entry",
+      "ok": true,
+      "info": "minions=1 book=['pet_cloudcat', 'mon_rabbit']"
+    },
+    {
+      "name": "minion auto-equipped as companion",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "collection book shows caught entries",
+      "ok": true,
+      "info": "2"
+    },
+    {
+      "name": "buy capture crystals x5 at shop",
+      "ok": true,
+      "info": "2->7"
+    },
+    {
+      "name": "AUTO indicator visible",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "AUTO: kills + XP/level gain with zero input",
+      "ok": true,
+      "info": "18s kills=7 Lv1->3"
+    },
+    {
+      "name": "AUTO drinks potion below HP threshold",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "manual input overrides AUTO",
+      "ok": true,
+      "info": "605->670"
+    },
+    {
+      "name": "AUTO resumes after manual input",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "death panel shows auto-revive countdown",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "auto-revived and AUTO still on",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "no console errors / page errors",
+      "ok": true,
+      "info": "[]"
+    }
+  ],
+  "errors": []
+}

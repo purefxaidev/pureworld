@@ -10,7 +10,7 @@
     fmt: (n) => Math.round(n).toLocaleString("en-US"),
   });
   const G = (PW.G = {
-    W: null, hero: null, allies: [], monsters: [], npcs: [], projs: [], texts: [], rings: [], parts: [], timers: [],
+    W: null, hero: null, allies: [], monsters: [], npcs: [], projs: [], texts: [], rings: [], parts: [], timers: [], slashes: [], loot: [], comps: [], moveTo: null, glows: [], meteors: [], bolts: [], zaps: [], capFx: [], flash: null, amb: [],
     cam: { x: 0, y: 0 }, t: 0, S: null, input: { x: 0, y: 0, manualT: 0 }, keys: {}, paused: true, running: false,
     autoHunt: false, lastZone: "", imgs: {}, voiceT: 0, shake: 0, panel: null, nearNpc: null,
   });
@@ -21,9 +21,17 @@
   PW.newSave = (heroId) => ({
     v: 1, heroId, level: 1, xp: 0, gold: 100, hpPot: 5, mpPot: 3, x: 0, y: 0, hp: 0, mp: 0,
     bag: [], eq: { weapon: null, armor: null, charm: null }, qIdx: 0, qProg: 0, party: [], kills: 0,
-    settings: { sound: true, autoAtk: true }, played: 0, created: Date.now(), nextId: 1,
+    settings: { sound: true, autoAtk: true, autoSkill: true, potPct: 40 }, played: 0, created: Date.now(), nextId: 1,
   });
-  PW.loadSave = () => { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (s && s.v === 1 && PW.HEROES[s.heroId]) return s; } catch (e) { /* */ } return null; };
+  // v2 fields (also migrated into older saves)
+  PW.migrate = (s) => {
+    const d = { sp: 0, skl: [1, 1, 1], ult: 0, passive: false, crystals: 3, eggs: 1, treats: 2, gems: 0, pets: [], petOn: null, minionOn: null, book: {}, seen: {}, hint: 0 };
+    for (const k in d) if (s[k] === undefined) s[k] = JSON.parse(JSON.stringify(d[k]));
+    if (s.settings.autoSkill === undefined) s.settings.autoSkill = true; if (!s.settings.potPct) s.settings.potPct = 40;
+    if (s.spGiven === undefined) { s.sp += Math.max(0, (s.level || 1) - 1); s.spGiven = true; } // retroactive skill points
+    return s;
+  };
+  PW.loadSave = () => { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (s && s.v === 1 && PW.HEROES[s.heroId]) return PW.migrate(s); } catch (e) { /* */ } return null; };
   PW.save = () => {
     const S = G.S, h = G.hero; if (!S || !h) return;
     S.level = h.level; S.xp = h.xp; S.hp = Math.round(h.hp); S.mp = Math.round(h.mp); S.x = Math.round(h.x); S.y = Math.round(h.y);
@@ -89,6 +97,8 @@
     const ratio = h.maxHp ? h.hp / h.maxHp : 1, mr = h.maxMp ? h.mp / h.maxMp : 1;
     h.maxHp = Math.round(b.hp + b.hpG * L + e.hp); h.maxMp = Math.round(b.mp + b.mpG * L);
     h.atk = b.atk + b.atkG * L + e.atk; h.def = b.def + b.defG * L + e.def; h.spd = b.spd; h.crit = b.crit + e.crit;
+    h.critDmg = 0; h.lifesteal = 0; h.skillDmg = 1; h.regenAura = false; h.mpRegen = 0;
+    if (h.isPlayer && PW.applyMods) PW.applyMods(h);
     h.hp = Math.min(h.maxHp, Math.max(1, Math.round(h.maxHp * ratio))); h.mp = Math.min(h.maxMp, Math.round(h.maxMp * mr));
   };
   PW.xpNext = (l) => Math.round(22 * Math.pow(l, 1.5));
@@ -98,19 +108,23 @@
     const h = G.hero; if (!h || h.level >= PW.MAXLV) return; h.xp += n; let up = 0;
     while (h.level < PW.MAXLV && h.xp >= PW.xpNext(h.level)) { h.xp -= PW.xpNext(h.level); h.level++; up++; }
     if (up) {
-      PW.calcStats(h); h.hp = h.maxHp; h.mp = h.maxMp;
+      PW.calcStats(h); h.hp = h.maxHp; h.mp = h.maxMp; if (G.S) { G.S.sp = (G.S.sp || 0) + up; }
+      PW.glow && PW.glow(h, "#ffe066", 1.4);
       for (const a of G.allies) { a.level = h.level; PW.calcStats(a); a.hp = a.maxHp; }
       PW.ring(h.x, h.y, 70, "#ffe066", 0.8); PW.ring(h.x, h.y, 40, "#fff", 0.6);
       for (let i = 0; i < 24; i++) PW.part(h.x, h.y, "#ffe066");
       PW.text(h.x, h.y - 40, "LEVEL UP! Lv " + h.level, "#ffe066", 1.6, 18);
-      PW.sfx("level"); PW.playVoice(h.id, 3); PW.toast("เลเวลอัป! Lv " + h.level + " — HP/MP ฟื้นเต็ม"); PW.save();
+      PW.sfx("level"); PW.playVoice(h.id, 3); PW.toast("เลเวลอัป! Lv " + h.level + " — ได้แต้มสกิล +" + up + " (เมนู สกิล)"); PW.save(); PW.updateHud && PW.updateHud(true);
     }
   };
 
   // ---------------------------------------------------------------- fx helpers
   PW.text = (x, y, s, c, life, size) => G.texts.push({ x, y, s, c: c || "#fff", t: life || 0.9, life: life || 0.9, size: size || 14, vx: U.rnd(-10, 10) });
   PW.ring = (x, y, r, c, dur) => G.rings.push({ x, y, r, c, t: dur || 0.4, dur: dur || 0.4 });
-  PW.part = (x, y, c) => G.parts.push({ x, y, vx: U.rnd(-90, 90), vy: U.rnd(-120, 40), t: U.rnd(0.4, 0.9), c });
+  PW.part = (x, y, c) => { if (G.parts.length < 420) G.parts.push({ x, y, vx: U.rnd(-90, 90), vy: U.rnd(-140, 20), t: U.rnd(0.4, 0.9), c, s: U.rnd(1.5, 3.5) }); };
+  PW.spark = (x, y, c, n) => { for (let i = 0; i < (n || 6) && G.parts.length < 420; i++) { const a = Math.random() * 6.283, v = U.rnd(80, 220); G.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, t: U.rnd(0.18, 0.4), c, s: U.rnd(1.5, 3), spark: 1 }); } };
+  PW.dmgText = (x, y, d, crit, src) => { const pl = src && (src.isPlayer || src.isComp); G.texts.push({ x: x + U.rnd(-8, 8), y, s: crit ? d + "!" : String(d), c: crit ? "#ffd23f" : pl ? "#ffffff" : "#cfe0ff", t: crit ? 1.0 : 0.75, life: crit ? 1.0 : 0.75, size: crit ? 22 : pl ? 16 : 13, vx: U.rnd(-14, 14), pop: 1, crit }); };
+  PW.glow = (e, c, dur) => G.glows.push({ e, c, t: dur || 1, dur: dur || 1 });
   PW.later = (sec, fn) => G.timers.push({ t: sec, fn });
   PW.toast = (msg, ms) => { const el = document.getElementById("toast"); if (!el) return; const d = document.createElement("div"); d.className = "toast-item"; d.textContent = msg; el.appendChild(d); setTimeout(() => d.classList.add("out"), ms || 2200); setTimeout(() => d.remove(), (ms || 2200) + 400); while (el.children.length > 3) el.firstChild.remove(); };
 })();
