@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PureWorld — เกม RPG อนิเมะสายเก็บเลเวล เล่นฟรีบนเว็บและมือถือ</title>
+<meta name="description" content="PureWorld เกม RPG อนิเมะภาษาไทย เลือก 1 ใน 6 ฮีโรอีน เก็บเลเวล ล่ามอนสเตอร์ ตั้งทีม และคุยกับ NPC ที่ตอบเองได้ เล่นฟรีบนเว็บและติดตั้งบนมือถือ">
+<meta property="og:title" content="PureWorld — เกม RPG อนิเมะสายเก็บเลเวล">
+<meta property="og:description" content="เลือกฮีโรอีน 6 อาชีพ เสียงพากย์ไทย เก็บเลเวล ล่าบอส คุยกับ NPC ที่ตอบเองได้ เล่นฟรีบนเว็บและมือถือ">
+<meta property="og:image" content="assets/og.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#150e28">
+<link rel="icon" href="play/assets/img/favicon.png">
+<style>
+@font-face{font-family:Kanit;src:url(play/assets/fonts/Kanit-Bold.ttf);font-weight:700;font-display:swap}
+@font-face{font-family:Sarabun;src:url(play/assets/fonts/Sarabun-Regular.ttf);font-weight:400;font-display:swap}
+@font-face{font-family:Sarabun;src:url(play/assets/fonts/Sarabun-SemiBold.ttf);font-weight:600 700;font-display:swap}
+:root{--bg:#120b24;--card:#1d1338;--line:rgba(255,224,140,.28);--gold:#ffe066;--ink:#f6f1ff;--mute:#b8aed6;--vio:#7b4dff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Sarabun,"Noto Sans Thai",system-ui,sans-serif;line-height:1.6}
+a{color:var(--gold)}img{max-width:100%;display:block}
+.wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+nav{position:sticky;top:0;z-index:20;background:rgba(18,11,36,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:18px;height:60px}
+.logo{font:700 24px Kanit,Sarabun;color:#fff;text-decoration:none}.logo span{color:var(--gold)}
+nav .links{display:flex;gap:16px;margin-left:auto;font-size:14px}nav .links a{color:var(--ink);text-decoration:none;opacity:.85}nav .links a:hover{opacity:1;color:var(--gold)}
+.btn{display:inline-block;background:linear-gradient(#ffd966,#e6a823);color:#3a2800;border:0;border-radius:14px;padding:12px 26px;font:700 17px Kanit,Sarabun;text-decoration:none;box-shadow:0 4px 18px #e6a82366;cursor:pointer}
+.btn.sm{padding:7px 16px;font-size:14px;border-radius:10px}.btn.ghost{background:rgba(255,255,255,.1);color:#fff;box-shadow:none;border:1px solid var(--line)}
+.hero{position:relative;min-height:min(86vh,720px);display:grid;align-items:center;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#120b24f0 8%,#120b2499 45%,#120b2420 100%),linear-gradient(0deg,#120b24 2%,transparent 40%),url(assets/banner.webp) center/cover}
+.hero .wrap{position:relative;padding-top:50px;padding-bottom:70px}
+.hero h1{font:700 clamp(54px,11vw,112px)/1 Kanit,Sarabun;margin:0;text-shadow:0 4px 30px #7b4dff}.hero h1 span{color:var(--gold)}
+.hero p.tag{font-size:clamp(17px,2.6vw,24px);max-width:600px;margin:12px 0 22px;text-shadow:0 2px 12px #000}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap}.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.badges span{background:rgba(255,255,255,.12);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:13px}
+section{padding:64px 0}section h2{font:700 clamp(28px,5vw,40px) Kanit,Sarabun;margin:0 0 8px;text-align:center}section h2 span{color:var(--gold)}
+.sub{text-align:center;color:var(--mute);max-width:640px;margin:0 auto 32px}
+.grid{display:grid;gap:18px}.chars{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.char{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+.char:hover{transform:translateY(-4px);box-shadow:0 12px 36px var(--c)}
+.char .pic{aspect-ratio:3/4;background:#000 center/cover;position:relative}.char .pic img{width:100%;height:100%;object-fit:cover}
+.char .pic .role{position:absolute;top:12px;left:12px;background:var(--c);color:#111;font-weight:700;border-radius:12px;padding:2px 12px;font-size:13px}
+.char .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px}.char h3{margin:0;font:700 24px Kanit,Sarabun;color:var(--c)}
+.char .pers{font-size:14px;color:var(--ink);margin:0}.chips{display:flex;gap:5px;flex-wrap:wrap}.chips span{background:rgba(255,255,255,.08);border-radius:8px;padding:2px 9px;font-size:12px;color:var(--mute)}
+.voices{display:grid;gap:5px;margin-top:2px}.vbtn{display:flex;gap:8px;align-items:center;text-align:left;background:rgba(255,255,255,.07);border:1px solid #ffffff1c;color:var(--ink);border-radius:10px;padding:6px 10px;font:inherit;font-size:13px;cursor:pointer}
+.vbtn:hover{background:rgba(255,255,255,.14)}.vbtn.on{border-color:var(--c);background:rgba(255,255,255,.18)}.vbtn i{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;background:var(--c);color:#111;display:grid;place-items:center;font-size:11px}
+.vbtn small{display:block;color:var(--mute);font-size:11px}
+.feat{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.f{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.f b{display:block;font:700 18px Kanit,Sarabun;color:var(--gold);margin-bottom:4px}.f p{margin:0;font-size:14px;color:var(--mute)}
+.npcs{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}.npc{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}.npc img{aspect-ratio:1;object-fit:cover;width:100%}.npc div{padding:12px 14px}.npc b{font:700 18px Kanit,Sarabun;color:var(--gold)}.npc small{display:block;color:var(--mute)}.npc p{margin:6px 0 0;font-size:13px}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}.how ol{margin:0;padding-left:20px}.how li{margin:5px 0;font-size:14px}.how .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.how h3{margin:0 0 8px;font:700 18px Kanit,Sarabun;color:var(--gold)}
+kbd{background:#2a1d52;border:1px solid var(--line);border-radius:5px;padding:0 6px;font-size:12px}
+.donate{background:linear-gradient(135deg,#241556,#150e28);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.dbox{max-width:760px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+.dbox img{width:170px;height:170px;border-radius:12px;background:#fff;padding:6px}.dbox .addr{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;word-break:break-all;background:#0c0618;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;-webkit-user-select:all;user-select:all}
+.dbox .net{display:inline-block;background:#1f7a4a;border-radius:8px;padding:1px 10px;font-size:13px;font-weight:700}.dbox .warn{color:var(--mute);font-size:12px;margin:8px 0 0}
+footer{padding:34px 0 50px;text-align:center;color:var(--mute);font-size:14px}footer b{color:var(--gold)}
+@media(max-width:640px){nav .links{display:none}nav .btn{margin-left:auto}.dbox{grid-template-columns:1fr;text-align:center}.dbox img{margin:0 auto}.hero{align-items:end;min-height:min(82vh,640px)}.hero::before{background:linear-gradient(0deg,#120b24 6%,#120b24c0 38%,#120b2400 70%),url(assets/banner.webp) 58% center/cover}.hero .wrap{padding-bottom:40px}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><a class="logo" href="#top">Pure<span>World</span></a>
+<div class="links"><a href="#characters">ตัวละคร</a><a href="#npc">NPC</a><a href="#features">ฟีเจอร์</a><a href="#how">วิธีเล่น</a><a href="#support">สนับสนุน</a></div>
+<a class="btn sm" href="play/">เล่นเลย</a></div></nav>
+
+<header class="hero" id="top"><div class="wrap">
+  <h1>Pure<span>World</span></h1>
+  <p class="tag">เกม RPG อนิเมะสายเก็บเลเวล เลือกฮีโรอีน 6 อาชีพ ล่ามอนสเตอร์ ตั้งทีมเพื่อนร่วมทีม และคุยกับ NPC ที่ตอบเองได้ — เล่นฟรีบนเว็บและมือถือ</p>
+  <div class="cta"><a class="btn" href="play/" id="play-hero">▶ Play now · เล่นเลย</a><a class="btn ghost" href="#characters">ดูตัวละครและฟังเสียง</a></div>
+  <div class="badges"><span>ภาษาไทย 100%</span><span>เสียงพากย์ไทย</span><span>ติดตั้งเป็นแอป (PWA)</span><span>เซฟในเครื่อง</span><span>ไม่ต้องสมัคร</span></div>
+</div></header>
+
+<section id="characters"><div class="wrap">
+  <h2>เลือก<span>ฮีโรอีน</span>ของคุณ</h2>
+  <p class="sub">6 อาชีพ 6 บุคลิก แต่ละคนมีเสียงพากย์ไทยและสกิลประจำตัว 3 ท่า — กดปุ่ม ▶ เพื่อฟังเสียง</p>
+  <div class="grid chars" id="chars"></div>
+</div></section>
+
+<section id="npc" style="background:#170f2e"><div class="wrap">
+  <h2>NPC ที่<span>ตอบเอง</span>ได้</h2>
+  <p class="sub">ในเมืองพิวร์มี NPC 4 คน แต่ละคนมีนิสัยและเสียงของตัวเอง พิมพ์คุยได้เลย — เมื่อผู้พัฒนาติดตั้ง Worker ตัวกลาง จะคุยด้วยเสียงสดผ่าน Gemini Live ได้ด้วย (ถ้ายังไม่ตั้งค่า เกมจะใช้บทพูดประจำตัวละครแทน)</p>
+  <div class="grid npcs">
+    <div class="npc"><img loading="lazy" src="play/assets/img/npc_prom.webp" alt="ป้าพรม"><div><b>ป้าพรม</b><small>ร้านยาสมุนไพร</small><p>ใจดีเหมือนแม่ ขี้บ่น คอยเตือนให้พกยา</p></div></div>
+    <div class="npc"><img loading="lazy" src="play/assets/img/npc_lek.webp" alt="ลุงเหล็ก"><div><b>ลุงเหล็ก</b><small>โรงตีเหล็ก</small><p>พูดห้วน ภูมิใจในฝีมือ ขายอาวุธและเกราะ</p></div></div>
+    <div class="npc"><img loading="lazy" src="play/assets/img/npc_mali.webp" alt="น้องมะลิ"><div><b>น้องมะลิ</b><small>กิลด์ผจญภัย</small><p>ร่าเริงสดใส แจกภารกิจและเรียกเพื่อนร่วมทีม</p></div></div>
+    <div class="npc"><img loading="lazy" src="play/assets/img/npc_sak.webp" alt="ตาปู่ศักดิ์"><div><b>ตาปู่ศักดิ์</b><small>ผู้เฒ่านักเล่าตำนาน</small><p>ลึกลับ พูดเป็นปริศนา เล่าตำนานราชาหิมะ</p></div></div>
+  </div>
+</div></section>
+
+<section id="features"><div class="wrap">
+  <h2>ฟีเจอร์<span>เด่น</span></h2><p class="sub">เกมสาย grinding เก็บเลเวลสบายๆ ที่เล่นได้ทั้งนั่งจิ้มและปล่อยออโต้</p>
+  <div class="grid feat">
+    <div class="f"><b>⚔ 18 สกิล 6 อาชีพ</b><p>แทงก์ นักสู้ จอมเวท มือธนู นักฆ่า ซัพพอร์ต — แต่ละอาชีพเล่นต่างกันจริง</p></div>
+    <div class="f"><b>📈 เก็บเลเวลจริงจัง</b><p>XP ทอง ดรอป เลเวลสูงสุด 50 สเตตัสโตตามอาชีพ มีโหมด “ล่าออโต้” และ “ตีออโต้”</p></div>
+    <div class="f"><b>🗺 5 โซน + บอส</b><p>เมืองพิวร์ ทุ่งหญ้า ป่าหมอก ทะเลทราย และยอดเขาน้ำแข็ง พร้อมบอส “ราชาหิมะ ฟรอสต์”</p></div>
+    <div class="f"><b>🛡 ไอเทมและอุปกรณ์</b><p>อาวุธ เกราะ เครื่องประดับ 6 ระดับ 3 ความหายาก ซื้อที่ร้านหรือดรอปจากมอนสเตอร์</p></div>
+    <div class="f"><b>👥 เพื่อนร่วมทีม AI</b><p>เรียกฮีโรอีนอีก 2 คนมาสู้ข้างกาย — แทงก์รับดาเมจ ซัพพอร์ตฮีลให้เอง</p></div>
+    <div class="f"><b>💬 NPC คุยได้อิสระ</b><p>พิมพ์คุยกับ NPC ได้ รองรับโหมดเสียงสดผ่าน Gemini Live (ต้องติดตั้ง Worker) มีโหมดออฟไลน์สำรอง</p></div>
+    <div class="f"><b>📱 เล่นได้ทุกที่</b><p>รองรับจอสัมผัส (จอยลอย) และคีย์บอร์ด ติดตั้งเป็นแอป PWA ได้ ใช้งานออฟไลน์ได้</p></div>
+    <div class="f"><b>💾 เซฟอัตโนมัติ</b><p>ความคืบหน้าเก็บในเครื่องของคุณ ไม่ต้องสมัครสมาชิก ไม่เก็บข้อมูลส่วนตัว</p></div>
+  </div>
+</div></section>
+
+<section id="how" style="background:#170f2e"><div class="wrap">
+  <h2>เริ่ม<span>เล่น</span>ยังไง</h2><p class="sub">ใช้เวลาไม่ถึงนาที</p>
+  <div class="how">
+    <div class="box"><h3>🎮 เริ่มเกม</h3><ol><li>กด “Play now” แล้วเลือกฮีโรอีน</li><li>คุยกับน้องมะลิที่กิลด์เพื่อรับภารกิจ</li><li>ออกไปล่ามอนสเตอร์ที่ทุ่งหญ้าทางตะวันตก</li><li>เปิด “ล่าออโต้” เพื่อเก็บเลเวลแบบสบายๆ</li></ol></div>
+    <div class="box"><h3>🖐 ควบคุม</h3><ol><li>มือถือ: ลากนิ้วฝั่งซ้ายเพื่อเดิน (จอยลอย)</li><li>ปุ่มขวา: โจมตี + สกิล 3 ท่า + ยา</li><li>คอม: <kbd>WASD</kbd> เดิน · <kbd>Space</kbd> โจมตี · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> สกิล</li><li><kbd>E</kbd> คุย · <kbd>B</kbd> กระเป๋า · <kbd>P</kbd> ทีม · <kbd>H</kbd> ล่าออโต้</li></ol></div>
+    <div class="box"><h3>📲 ติดตั้งเป็นแอป</h3><ol><li>Android (Chrome): เมนู ⋮ → “ติดตั้งแอป”</li><li>iPhone (Safari): แชร์ → “เพิ่มลงในหน้าจอโฮม”</li><li>คอม (Chrome/Edge): ไอคอนติดตั้งที่แถบที่อยู่</li><li>เปิดเล่นออฟไลน์ได้หลังเปิดครั้งแรก</li></ol></div>
+  </div>
+  <p style="text-align:center;margin-top:28px"><a class="btn" href="play/">▶ Play now · เล่นเลย</a></p>
+</div></section>
+
+<section class="donate" id="support"><div class="wrap">
+  <h2>สนับสนุน<span>PureWorld</span></h2>
+  <p class="sub">PureWorld เล่นฟรี หากชอบและอยากสนับสนุนให้เราพัฒนาต่อ รับบริจาคเป็น USDT</p>
+  <div class="dbox">
+    <img src="assets/usdt-qr.png" alt="QR code ที่อยู่กระเป๋า USDT (ERC20)" width="170" height="170">
+    <div>
+      <span class="net">USDT · เครือข่าย ERC20 (Ethereum)</span>
+      <div class="addr" id="addr">0x920deab53daf94ca2030ad5ceec2265bf5686941</div>
+      <button class="btn sm" id="copy" type="button">คัดลอกที่อยู่</button>
+      <p class="warn">โอนเฉพาะ USDT บนเครือข่าย Ethereum (ERC20) เท่านั้น — โอนผิดเครือข่ายอาจสูญหาย โปรดตรวจสอบที่อยู่ให้ตรงก่อนโอนทุกครั้ง การสนับสนุนเป็นความสมัครใจ ไม่ใช่การลงทุน และไม่มีผลตอบแทนใดๆ</p>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <p>© 2026 PureWorld · สร้างโดย <b>PureFxAi</b></p>
+  <p style="font-size:12px">ภาพตัวละคร เสียงพากย์ และเนื้อหาในเกมสร้างด้วยเครื่องมือ AI · <a href="https://github.com/purefxaidev/pureworld">ซอร์สโค้ดบน GitHub</a></p>
+</div></footer>
+
+<script>
+const H=[
+ {id:"tank",n:"เกราะแก้ว",r:"แทงก์",c:"#e0a030",p:"นักรบขี้โม้ ผู้คุ้มกันที่เชื่อว่าไม่มีใครทะลุเกราะตนได้",s:["โล่คำราม","เกราะทอง","สิงโตพิโรธ"],l:["เกราะข้านี้ ไม่มีใครทะลุได้หรอก!","ไม่มีใครผ่านข้าไปได้!","แข็งแกร่งขึ้นอีกแล้ว ใครจะมาท้า?"]},
+ {id:"fighter",n:"พยัคฆ์",r:"นักสู้",c:"#f08a24",p:"นักสู้เลือดร้อน ชอบประชิดตัวและท้าทายคู่ต่อสู้",s:["ฟันคู่พยัคฆ์","พายุพยัคฆ์","คำรามเลือดเดือด"],l:["มาสิ! ข้ายังไม่ทันอุ่นเครื่องเลย!","คำรามหน่อย แล้วฟันให้สุด!","เลือดเดือดขึ้นอีกขั้น ไปล่าต่อเลย!"]},
+ {id:"mage",n:"จันทรา",r:"จอมเวท",c:"#5aa9ff",p:"จอมเวทสายเย็นชา พูดน้อย คำนวณทุกอย่างอย่างเยือกเย็น",s:["ลูกบอลน้ำแข็ง","พายุหิมะ","จันทร์ทัณฑ์"],l:["อารมณ์ไม่มีประโยชน์... มีแต่ผลลัพธ์เท่านั้น","จงเยือกแข็ง!","พลังจันทร์เพิ่มขึ้นแล้ว... ตามที่คำนวณไว้"]},
+ {id:"marksman",n:"สายฟ้า",r:"มือธนู",c:"#34d6c0",p:"มือธนูขี้เล่น มั่นใจในความแม่นยำ ชอบแซวเพื่อนในทีม",s:["ยิงรัว","ธนูสายฟ้า","ฝนธนู"],l:["หลับตาเล็งก็ยังโดนนะ ง่ายไปหรือเปล่า?","สายฟ้า ไปซะ!","แม่นขึ้นอีกแล้ว จะตามให้ทันมั้ย?"]},
+ {id:"assassin",n:"คมเงา",r:"นักฆ่า",c:"#a56bff",p:"นักฆ่าเงียบขรึม พูดน้อย โผล่มาเมื่อไรศัตรูก็หมดทางหนี",s:["ก้าวเงา","มีดคู่พายุ","สังหารเงียบ"],l:["เมื่อเงาเคลื่อนที่... ก็สายเกินไปแล้ว","จบแล้ว","เงาลึกขึ้น... เหยื่อไม่มีทางหนี"]},
+ {id:"support",n:"ไหมทอง",r:"ซัพพอร์ต",c:"#ff9ec2",p:"ผู้สนับสนุนใจดีแต่ปากจัด คอยดูแลทีมและบ่นเมื่อเพื่อนเล่นเสี่ยง",s:["บัวฟื้นฟู","ไหมทองคุ้มครอง","แสงบัวบาน"],l:["อย่าบุ่มบ่ามสิ! ข้าจะปกป้องเอง ถอยมาเลย!","ไหมทองคุ้มครอง! ลุกขึ้นสิ!","ยิ่งแข็งแกร่ง ยิ่งดูแลพวกเธอได้ดีกว่าเดิม"]}];
+const T=["เลือกตัวละคร","ใช้สกิล","เลเวลอัป"];
+document.getElementById("chars").innerHTML=H.map(h=>`<article class="char" style="--c:${h.c}">
+<div class="pic"><img loading="lazy" src="play/assets/img/${h.id}.webp" alt="${h.n} ${h.r}"><span class="role">${h.r}</span></div>
+<div class="body"><h3>${h.n}</h3><p class="pers">${h.p}</p><div class="chips">${h.s.map(x=>`<span>${x}</span>`).join("")}</div>
+<div class="voices">${h.l.map((x,i)=>`<button class="vbtn" type="button" data-a="play/assets/audio/${h.id}_${i+1}.mp3"><i>▶</i><span>“${x}”<small>${T[i]}</small></span></button>`).join("")}</div></div></article>`).join("");
+let cur=null,curBtn=null;
+document.getElementById("chars").addEventListener("click",e=>{const b=e.target.closest(".vbtn");if(!b)return;
+  if(cur){cur.pause();curBtn&&curBtn.classList.remove("on");curBtn&&(curBtn.querySelector("i").textContent="▶")}
+  if(curBtn===b&&!cur.paused===false&&false){} 
+  cur=new Audio(b.dataset.a);curBtn=b;b.classList.add("on");b.querySelector("i").textContent="■";
+  cur.onended=()=>{b.classList.remove("on");b.querySelector("i").textContent="▶"};cur.play().catch(()=>{});});
+document.getElementById("copy").addEventListener("click",async e=>{const t=document.getElementById("addr").textContent.trim();
+  try{await navigator.clipboard.writeText(t)}catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById("addr"));const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy")}
+  e.target.textContent="คัดลอกแล้ว ✓";setTimeout(()=>e.target.textContent="คัดลอกที่อยู่",1800)});
+</script>
+</body>
+</html>

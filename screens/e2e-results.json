@@ -1,0 +1,240 @@
+{
+  "checks": [
+    {
+      "name": "[mobile] title loads",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[mobile] manifest linked",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[mobile] service worker active",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[mobile] 6 heroines selectable",
+      "ok": true,
+      "info": "{'tank': 'เกราะแก้ว', 'fighter': 'พยัคฆ์', 'mage': 'จันทรา', 'marksman': 'สายฟ้า', 'assassin': 'คมเงา', 'support': 'ไหมทอง'}"
+    },
+    {
+      "name": "[mobile] voice plays on select",
+      "ok": true,
+      "info": "['marksman_1.mp3', 'assassin_1.mp3', 'support_1.mp3']"
+    },
+    {
+      "name": "[mobile] game started as mage",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[mobile] hero moves (touch stick)",
+      "ok": true,
+      "info": "1296->1380"
+    },
+    {
+      "name": "[mobile] talk button near NPC",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[mobile] NPC fallback mode (no worker)",
+      "ok": true,
+      "info": "บทพูดในเกม"
+    },
+    {
+      "name": "[mobile] NPC replies in character (Thai)",
+      "ok": true,
+      "info": "ถ้าอยากเก็บเลเวลสบายๆ เปิดโหมด \"ล่าอัตโนมัติ\" แล้วให้ทีมช่วยตีได้นะคะ"
+    },
+    {
+      "name": "[mobile] shop buy potion",
+      "ok": true,
+      "info": "5->6"
+    },
+    {
+      "name": "[mobile] buy + equip gear raises stats",
+      "ok": true,
+      "info": "atk 14.0->25.0"
+    },
+    {
+      "name": "[mobile] recruit 2 AI companions",
+      "ok": true,
+      "info": "['support', 'tank']"
+    },
+    {
+      "name": "[mobile] fight monsters (kills)",
+      "ok": true,
+      "info": "kills=6"
+    },
+    {
+      "name": "[mobile] level up",
+      "ok": true,
+      "info": "Lv2->4"
+    },
+    {
+      "name": "[mobile] level-up/skill voice played",
+      "ok": true,
+      "info": "['mage_1.mp3', 'mage_1.mp3', 'mage_1.mp3', 'mage_3.mp3', 'mage_2.mp3', 'mage_2.mp3', 'mage_3.mp3']"
+    },
+    {
+      "name": "[mobile] all 18 skills cast without errors",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[mobile] progress saved to localStorage",
+      "ok": true,
+      "info": "lv=4 gold=4971 kills=8"
+    },
+    {
+      "name": "[mobile] continue button after reload",
+      "ok": true,
+      "info": "ต่อเกม · จันทรา Lv 4"
+    },
+    {
+      "name": "[mobile] loaded progress",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[desktop] title loads",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[desktop] manifest linked",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[desktop] service worker active",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[desktop] 6 heroines selectable",
+      "ok": true,
+      "info": "{'tank': 'เกราะแก้ว', 'fighter': 'พยัคฆ์', 'mage': 'จันทรา', 'marksman': 'สายฟ้า', 'assassin': 'คมเงา', 'support': 'ไหมทอง'}"
+    },
+    {
+      "name": "[desktop] voice plays on select",
+      "ok": true,
+      "info": "['marksman_1.mp3', 'assassin_1.mp3', 'support_1.mp3']"
+    },
+    {
+      "name": "[desktop] game started as mage",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[desktop] hero moves (keyboard)",
+      "ok": true,
+      "info": "1296->1382"
+    },
+    {
+      "name": "[desktop] talk button near NPC",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[desktop] NPC fallback mode (no worker)",
+      "ok": true,
+      "info": "บทพูดในเกม"
+    },
+    {
+      "name": "[desktop] NPC replies in character (Thai)",
+      "ok": true,
+      "info": "ถ้าอยากเก็บเลเวลสบายๆ เปิดโหมด \"ล่าอัตโนมัติ\" แล้วให้ทีมช่วยตีได้นะคะ"
+    },
+    {
+      "name": "[desktop] shop buy potion",
+      "ok": true,
+      "info": "5->6"
+    },
+    {
+      "name": "[desktop] buy + equip gear raises stats",
+      "ok": true,
+      "info": "atk 14.0->25.0"
+    },
+    {
+      "name": "[desktop] recruit 2 AI companions",
+      "ok": true,
+      "info": "['support', 'tank']"
+    },
+    {
+      "name": "[desktop] fight monsters (kills)",
+      "ok": true,
+      "info": "kills=5"
+    },
+    {
+      "name": "[desktop] level up",
+      "ok": true,
+      "info": "Lv2->3"
+    },
+    {
+      "name": "[desktop] level-up/skill voice played",
+      "ok": true,
+      "info": "['mage_1.mp3', 'mage_1.mp3', 'mage_1.mp3', 'mage_3.mp3', 'mage_2.mp3', 'mage_3.mp3']"
+    },
+    {
+      "name": "[desktop] all 18 skills cast without errors",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[desktop] progress saved to localStorage",
+      "ok": true,
+      "info": "lv=3 gold=4939 kills=6"
+    },
+    {
+      "name": "[desktop] continue button after reload",
+      "ok": true,
+      "info": "ต่อเกม · จันทรา Lv 3"
+    },
+    {
+      "name": "[desktop] loaded progress",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "[live] connected via ephemeral token (status AI สด)",
+      "ok": true,
+      "info": "AI สด · พร้อมคุย"
+    },
+    {
+      "name": "[live] NPC greeted in Thai (Live native audio transcript)",
+      "ok": true,
+      "info": "โอ้ เจ้าหนูไหมทอง"
+    },
+    {
+      "name": "[live] NPC answered typed question in character",
+      "ok": true,
+      "info": "นมนานมาแล้ว "
+    },
+    {
+      "name": "[live] microphone streaming started (fake device)",
+      "ok": true,
+      "info": "กำลังฟังคุณ…"
+    },
+    {
+      "name": "[live] no API key in any client request",
+      "ok": true,
+      "info": "[]"
+    },
+    {
+      "name": "[live] WebSocket uses BidiGenerateContentConstrained + access_token",
+      "ok": true,
+      "info": "WS wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained?access_token=auth_tokens/***"
+    },
+    {
+      "name": "no console errors / page errors",
+      "ok": true,
+      "info": "[]"
+    }
+  ],
+  "errors": []
+}

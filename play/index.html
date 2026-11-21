@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1030">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PureWorld">
+<title>PureWorld — เล่นเกม</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/favicon.png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="touchzone"></div>
+<div id="stick"><div id="knob"></div></div>
+
+<div id="hud" hidden>
+  <div id="hud-left">
+    <img id="hud-icon" alt="">
+    <div class="hud-bars">
+      <div class="hud-title"><b id="hud-name"></b><span id="hud-lv"></span></div>
+      <div class="bar hp"><i id="bar-hp"></i><span id="txt-hp"></span></div>
+      <div class="bar mp"><i id="bar-mp"></i><span id="txt-mp"></span></div>
+      <div class="bar xp"><i id="bar-xp"></i><span id="txt-xp"></span></div>
+    </div>
+  </div>
+  <div id="hud-right">
+    <div class="hud-top"><span id="hud-gold" class="gold"></span><span class="coin">G</span></div>
+    <div id="hud-zone"></div>
+    <canvas id="minimap" width="128" height="90"></canvas>
+  </div>
+  <div id="hud-menu">
+    <div class="hud-btns">
+      <button id="hb-bag" class="hb">กระเป๋า</button><button id="hb-party" class="hb">ทีม</button><button id="hb-quest" class="hb">ภารกิจ</button><button id="hb-menu" class="hb">เมนู</button>
+    </div>
+    <div class="hud-btns tg">
+      <button id="tg-auto" class="hb tgl">ล่าออโต้</button><button id="tg-atk" class="hb tgl on">ตีออโต้</button><button id="tg-snd" class="hb tgl on">เสียง</button>
+    </div>
+  </div>
+</div>
+
+<div id="controls" hidden>
+  <button id="btn-talk" hidden></button>
+  <div id="skillpad">
+    <button id="btn-hp" class="pot hp">ยาแดง<b id="btn-hp-n">0</b></button>
+    <button id="btn-mp" class="pot mp">ยาน้ำเงิน<b id="btn-mp-n">0</b></button>
+    <button id="btn-s0" class="skill"></button>
+    <button id="btn-s1" class="skill"></button>
+    <button id="btn-s2" class="skill"></button>
+    <button id="btn-atk" class="atk">โจมตี</button>
+  </div>
+</div>
+
+<div id="zonebanner"></div>
+<div id="toast"></div>
+<div id="modal" hidden></div>
+
+<section id="title">
+  <div class="t-bg"></div>
+  <div class="t-wrap">
+    <header class="t-head">
+      <h1>Pure<span>World</span></h1>
+      <p>เกม RPG อนิเมะ สายเก็บเลเวล · เลือกฮีโรอีนของคุณ</p>
+    </header>
+    <div class="t-main">
+      <div class="t-art-wrap"><img id="t-art" alt="ภาพฮีโรอีน"></div>
+      <div class="t-info">
+        <h2 id="t-name"></h2>
+        <div id="t-role" class="role"></div>
+        <p id="t-pers"></p>
+        <button id="t-voice" class="line">🔊 <span id="t-line"></span></button>
+        <div id="t-stats" class="tstats"></div>
+        <ul id="t-skills"></ul>
+      </div>
+    </div>
+    <div id="t-cards" class="t-cards"></div>
+    <div class="t-actions">
+      <button id="t-start" class="big">เริ่มผจญภัย</button>
+      <button id="t-continue" class="big alt" hidden></button>
+      <button id="t-install" class="alt2" hidden>📲 ติดตั้งแอป</button>
+    </div>
+    <p id="t-ios" class="hint" hidden>iPhone/iPad: กดปุ่มแชร์ แล้วเลือก “เพิ่มลงในหน้าจอโฮม” เพื่อติดตั้งเป็นแอป</p>
+    <p class="hint">เล่นได้ทั้งมือถือและคอมพิวเตอร์ · เซฟในเครื่องอัตโนมัติ · <a href="../">กลับหน้า PureWorld</a> · สร้างโดย PureFxAi</p>
+  </div>
+</section>
+<div id="loading"><div>กำลังโหลด PureWorld…</div></div>
+
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/world.js"></script>
+<script src="js/core.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/render.js"></script>
+<script src="js/npc.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

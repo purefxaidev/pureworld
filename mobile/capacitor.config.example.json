@@ -1,0 +1,6 @@
+{
+  "appId": "app.purefxai.pureworld",
+  "appName": "PureWorld",
+  "webDir": "../play",
+  "server": { "androidScheme": "https" }
+}
