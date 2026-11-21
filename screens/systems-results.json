@@ -28,7 +28,7 @@
     {
       "name": "upgraded skill has shorter cooldown",
       "ok": true,
-      "info": "2.76 < 3"
+      "info": "2.74 < 3"
     },
     {
       "name": "cast ultimate (cooldown starts)",
@@ -38,7 +38,7 @@
     {
       "name": "hatch egg → pet, auto-equipped",
       "ok": true,
-      "info": "pets=1 on=2"
+      "info": "pets=1 on=1"
     },
     {
       "name": "feed treats → pet levels up",
@@ -53,7 +53,7 @@
     {
       "name": "active pet gives stat bonus",
       "ok": true,
-      "info": "{'atk': 0.17407999999999998}"
+      "info": "{'def': 0.26111999999999996}"
     },
     {
       "name": "pet follows the player",
@@ -73,7 +73,7 @@
     {
       "name": "successful capture → minion + book entry",
       "ok": true,
-      "info": "minions=1 book=['pet_fox', 'mon_rabbit']"
+      "info": "minions=1 book=['pet_turtle', 'mon_rabbit']"
     },
     {
       "name": "minion auto-equipped as companion",
@@ -88,7 +88,7 @@
     {
       "name": "buy capture crystals x5 at shop",
       "ok": true,
-      "info": "2->7"
+      "info": "1->6"
     },
     {
       "name": "AUTO indicator visible",
@@ -98,7 +98,7 @@
     {
       "name": "AUTO: kills + XP/level gain with zero input",
       "ok": true,
-      "info": "14s kills=7 Lv1->3"
+      "info": "16s kills=7 Lv1->3"
     },
     {
       "name": "AUTO drinks potion below HP threshold",
@@ -108,7 +108,7 @@
     {
       "name": "manual input overrides AUTO",
       "ok": true,
-      "info": "605->668"
+      "info": "572->638"
     },
     {
       "name": "AUTO resumes after manual input",

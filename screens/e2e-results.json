@@ -68,7 +68,7 @@
     {
       "name": "[mobile] fight monsters (kills)",
       "ok": true,
-      "info": "kills=6"
+      "info": "kills=5"
     },
     {
       "name": "[mobile] level up",
@@ -88,7 +88,7 @@
     {
       "name": "[mobile] progress saved to localStorage",
       "ok": true,
-      "info": "lv=3 gold=4937 kills=10"
+      "info": "lv=3 gold=4928 kills=7"
     },
     {
       "name": "[mobile] continue button after reload",
@@ -178,7 +178,7 @@
     {
       "name": "[desktop] level-up/skill voice played",
       "ok": true,
-      "info": "['mage_1.mp3', 'mage_1.mp3', 'mage_1.mp3', 'mage_3.mp3', 'mage_2.mp3', 'mage_3.mp3']"
+      "info": "['mage_1.mp3', 'mage_1.mp3', 'mage_1.mp3', 'mage_3.mp3', 'mage_2.mp3', 'mage_2.mp3', 'mage_3.mp3']"
     },
     {
       "name": "[desktop] all 18 skills cast without errors",
@@ -188,7 +188,7 @@
     {
       "name": "[desktop] progress saved to localStorage",
       "ok": true,
-      "info": "lv=3 gold=4935 kills=9"
+      "info": "lv=3 gold=4925 kills=7"
     },
     {
       "name": "[desktop] continue button after reload",
