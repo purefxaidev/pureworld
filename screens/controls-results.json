@@ -43,7 +43,7 @@
     {
       "name": "[iphone] tap ground → walks there",
       "ok": true,
-      "info": "(1296,960)->(1346,980)"
+      "info": "(1296,960)->(1403,986)"
     },
     {
       "name": "[iphone] tap NPC → walks over and opens chat",
@@ -83,7 +83,7 @@
     {
       "name": "[android] CDP touch joystick → left",
       "ok": true,
-      "info": "(1296,960)->(1216,960)"
+      "info": "(1296,960)->(1215,960)"
     },
     {
       "name": "[android] touch lower-left area (floating joystick) → right",
@@ -98,7 +98,7 @@
     {
       "name": "[android] tap ground → walks there",
       "ok": true,
-      "info": "(1296,960)->(1346,981)"
+      "info": "(1296,960)->(1403,986)"
     },
     {
       "name": "[android] tap NPC → walks over and opens chat",
@@ -153,7 +153,7 @@
     {
       "name": "[android-landscape] tap ground → walks there",
       "ok": true,
-      "info": "(1296,960)->(1344,980)"
+      "info": "(1296,960)->(1403,986)"
     },
     {
       "name": "[android-landscape] tap NPC → walks over and opens chat",
@@ -183,7 +183,7 @@
     {
       "name": "[desktop] keyboard S → down",
       "ok": true,
-      "info": "(1296,960)->(1296,1052)"
+      "info": "(1296,960)->(1296,1050)"
     },
     {
       "name": "[desktop] Thai keyboard layout (key 'ก', code KeyD) → right",
@@ -193,7 +193,7 @@
     {
       "name": "[desktop] mouse click ground → walks there",
       "ok": true,
-      "info": "(1296,960)->(1182,989)"
+      "info": "(1296,960)->(1175,995)"
     },
     {
       "name": "[desktop] mouse drag on map → right",
@@ -203,7 +203,7 @@
     {
       "name": "[desktop] click monster → targets, walks over and attacks",
       "ok": true,
-      "info": "target=True hp 34->9 kills+0"
+      "info": "target=True hp 44->21 kills+0"
     },
     {
       "name": "no console errors / page errors",

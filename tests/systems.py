@@ -101,8 +101,11 @@ async def main():
         k, lv, xp = await ev(pg, f"[{G}.S.kills,{G}.hero.level,{G}.hero.xp]")
         check("AUTO: kills + XP/level gain with zero input", k >= 3 and lv > lv0, f"{t}s kills={k} Lv{lv0}->{lv}")
         # auto potion
-        hp0 = await ev(pg, f"(()=>{{const h={G}.hero;h.hp=h.maxHp*0.2;return {G}.S.hpPot}})()"); await pg.wait_for_timeout(1500)
-        check("AUTO drinks potion below HP threshold", await ev(pg, f"{G}.S.hpPot") < hp0)
+        drank = False; hp0 = await ev(pg, f"{G}.S.hpPot")
+        for _ in range(4):  # (a level-up mid-wait refills HP, so retry a few times)
+            await ev(pg, f"(()=>{{const h={G}.hero;h.hp=h.maxHp*0.2}})()"); await pg.wait_for_timeout(1500)
+            if await ev(pg, f"{G}.S.hpPot") < hp0: drank = True; break
+        check("AUTO drinks potion below HP threshold", drank)
         # manual override then resume
         await ev(pg, f"{G}.hero.hp={G}.hero.maxHp")
         x0 = await ev(pg, f"{G}.hero.x")

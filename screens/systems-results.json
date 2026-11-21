@@ -28,7 +28,7 @@
     {
       "name": "upgraded skill has shorter cooldown",
       "ok": true,
-      "info": "2.74 < 3"
+      "info": "2.76 < 3"
     },
     {
       "name": "cast ultimate (cooldown starts)",
@@ -38,7 +38,7 @@
     {
       "name": "hatch egg → pet, auto-equipped",
       "ok": true,
-      "info": "pets=1 on=1"
+      "info": "pets=1 on=2"
     },
     {
       "name": "feed treats → pet levels up",
@@ -58,7 +58,7 @@
     {
       "name": "pet follows the player",
       "ok": true,
-      "info": "dist=31"
+      "info": "dist=26"
     },
     {
       "name": "capture chance shown for low-HP target",
@@ -88,7 +88,7 @@
     {
       "name": "buy capture crystals x5 at shop",
       "ok": true,
-      "info": "2->7"
+      "info": "1->6"
     },
     {
       "name": "AUTO indicator visible",
@@ -98,7 +98,7 @@
     {
       "name": "AUTO: kills + XP/level gain with zero input",
       "ok": true,
-      "info": "18s kills=7 Lv1->3"
+      "info": "20s kills=6 Lv1->3"
     },
     {
       "name": "AUTO drinks potion below HP threshold",
@@ -108,7 +108,7 @@
     {
       "name": "manual input overrides AUTO",
       "ok": true,
-      "info": "605->670"
+      "info": "650->713"
     },
     {
       "name": "AUTO resumes after manual input",
