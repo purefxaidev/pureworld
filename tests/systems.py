@@ -116,7 +116,9 @@ async def main():
         # death → auto revive → keeps farming
         await ev(pg, f"(()=>{{const h={G}.hero;h.hp=0;h.dead=true;{P}.onPlayerDead();}})()"); await pg.wait_for_timeout(500)
         check("death panel shows auto-revive countdown", await pg.locator("#rv-n").is_visible()); await pg.wait_for_timeout(6000)
-        check("auto-revived and AUTO still on", await ev(pg, f"!{G}.hero.dead && {G}.autoHunt && !{G}.panel"))
+        st = await ev(pg, f"""(()=>{{const g={G},h=g.hero,sp=g.W.spawn;return {{dead:h.dead,auto:g.autoHunt,panel:g.panel,paused:g.paused,hp:h.hp,max:h.maxHp,inv:h.invuln,dx:Math.hypot(h.x-sp.x,h.y-sp.y),anim:h.an,frame:{P}.heroFrame(h,g.t).s}};}})()""")
+        check("auto-revived in town, unpaused, full HP, AUTO paused for safety",
+              (not st["dead"]) and (not st["auto"]) and (not st["panel"]) and (not st["paused"]) and st["hp"] == st["max"] and st["inv"] > 0 and st["dx"] < 40 and st["anim"] is None and st["frame"] != "dead", st)
         await ctx.close(); await b.close()
     check("no console errors / page errors", not R["errors"], R["errors"][:5])
     json.dump(R, open(os.path.join(SHOTS, "systems-results.json"), "w"), ensure_ascii=False, indent=2)

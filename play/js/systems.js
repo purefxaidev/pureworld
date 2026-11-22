@@ -87,7 +87,7 @@
       const p = c.p; if (!p) return; c.hop += dt * (c.moving ? 12 : 4); c.atkT -= dt;
       const pet = p.kind === "pet"; const range = pet ? 170 : 40; const evo = PW.EVO[p.evo || 0].m;
       let tgt = c.tgt && !c.tgt.dead && U.dist(c.tgt, h) < 300 ? c.tgt : null;
-      if (!tgt && !h.dead) { let bd = 230; for (const m of G.monsters) { if (m.dead) continue; const d = U.dist(m, h); if (d < bd && (m.target || G.autoHunt || d < 140)) { bd = d; tgt = m; } } }
+      if (!tgt && !h.dead) { let bd = 230; for (const m of G.monsters) { if (m.dead) continue; const d = U.dist(m, h); if (d < bd && (m.target || (G.autoHunt && G.huntTarget === m))) { bd = d; tgt = m; } } }
       c.tgt = tgt; let tx, ty;
       if (tgt) { const d = U.dist(c, tgt); if (d > range + tgt.r) { tx = tgt.x; ty = tgt.y; } else { tx = c.x; ty = c.y; c.face = U.ang(c, tgt); if (c.atkT <= 0) { c.atkT = pet ? 1.3 : 1.0; const dmg = Math.max(1, Math.round(h.atk * (pet ? 0.32 : 0.42) * (1 + 0.035 * (p.lv - 1)) * evo - tgt.def * 0.3)); const crit = Math.random() < 0.12; G.zaps.push({ x1: c.x, y1: c.y - 14, x2: tgt.x, y2: tgt.y - tgt.r, c: pet ? (PW.PETS[p.sp].color || "#fff") : "#ffd28a", t: 0.18, dur: 0.18, melee: !pet }); cb().damageMonster(tgt, crit ? dmg * 2 : dmg, G.hero, crit, {}); } } }
       else { const side = i === 0 ? -1 : 1; tx = h.x + side * 34 - Math.cos(h.face) * 22; ty = h.y + 18 - Math.sin(h.face) * 14; }

@@ -129,6 +129,28 @@ async def run_game(b, mobile, tag):
     await pg.click("#t-continue"); await pg.wait_for_function("window.__PW.G.running===true")
     check(f"[{tag}] loaded progress", await ev(pg, "window.__PW.G.hero.level") == lv)
     await pg.wait_for_timeout(800); await shot(pg, f"{tag}_09_continue.png")
+    # death → respawn + aggro cap (v3.2)
+    await ev(pg, """(()=>{const g=window.__PW.G,P=window.__PW.PW;g.autoHunt=true;g.S.auto=true;g.hero.cast=0.4;P.setAnim(g.hero,'cast',0.5);
+      const meadow=P.ZONES.find(z=>z.id==='meadow'); g.hero.x=(meadow.rect[0]+4)*P.T; g.hero.y=(meadow.rect[1]+4)*P.T; g.cam.x=g.hero.x; g.cam.y=g.hero.y;
+      g.hero.hp=0; g.hero.dead=true; P.onPlayerDead();})()""")
+    await pg.wait_for_timeout(200)
+    check(f"[{tag}] death panel opens (and cannot be dismissed with Esc)", await ev(pg, "window.__PW.G.panel==='death' && window.__PW.G.paused===true"))
+    await ev(pg, "window.__PW.PW.closePanel()"); check(f"[{tag}] death panel stays until revive", await ev(pg, "window.__PW.G.panel==='death'"))
+    await ev(pg, "window.__PW.PW.revive(); window.__PW.PW.closePanel && window.__PW.PW.closePanel()")
+    st = await ev(pg, """(()=>{const g=window.__PW.G,h=g.hero,sp=g.W.spawn,P=window.__PW.PW;return {dead:h.dead,paused:g.paused,panel:g.panel,auto:g.autoHunt,hp:h.hp,max:h.maxHp,inv:h.invuln,d:Math.hypot(h.x-sp.x,h.y-sp.y),frame:P.heroFrame(h,g.t).s,aggro:P.aggroCount()};})()""")
+    check(f"[{tag}] revive: town, full HP, invuln, unpaused, AUTO off, anim not dead", not st["dead"] and not st["paused"] and not st["auto"] and st["hp"]==st["max"] and st["inv"]>2 and st["d"]<40 and st["frame"]!="dead" and st["aggro"]==0, st)
+    # invuln blocks damage
+    hp0 = await ev(pg, "window.__PW.G.hero.hp")
+    await ev(pg, "window.__PW.PW._cb.hurtHero(window.__PW.G.hero, 999, null)")
+    check(f"[{tag}] invulnerable just after respawn", await ev(pg, "window.__PW.G.hero.hp") == hp0)
+    # aggro cap in meadow is 3
+    await ev(pg, """(()=>{const g=window.__PW.G,P=window.__PW.PW;g.hero.invuln=0;
+      const mons=g.monsters.filter(m=>m.type==='slime'||m.type==='rabbit');
+      mons.forEach((m,i)=>{m.dead=false;m.hp=m.maxHp;m.x=g.hero.x+40+i*8;m.y=g.hero.y;m.hx=m.x;m.hy=m.y;m.target=null;m.stun=0;});
+      for(let i=0;i<8;i++) P.update(0.2);
+    })()""")
+    cap = await ev(pg, "({n:window.__PW.PW.aggroCount(), cap:window.__PW.PW.aggroCap()})")
+    check(f"[{tag}] aggro cap respected", cap["n"] <= cap["cap"] and cap["cap"] <= 4, cap)
     await ctx.close()
 
 async def run_live(b):

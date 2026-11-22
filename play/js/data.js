@@ -88,16 +88,16 @@
   ];
 
   PW.MONSTERS = {
-    slime:    { name: "สไลม์",        zone: "meadow", lv: [1, 3],   hp: 34,  atk: 6,  def: 0,  spd: 46, xp: 9,   gold: 3,  r: 13, aggro: 130, color: "#6fd36f" },
-    rabbit:   { name: "กระต่ายเขี้ยว", zone: "meadow", lv: [3, 6],   hp: 62,  atk: 10, def: 1,  spd: 78, xp: 15,  gold: 5,  r: 12, aggro: 160, color: "#f4f0e6" },
-    wolf:     { name: "หมาป่าหมอก",   zone: "forest", lv: [6, 9],   hp: 130, atk: 17, def: 3,  spd: 84, xp: 30,  gold: 9,  r: 15, aggro: 190, color: "#8a93a6" },
-    mushroom: { name: "เห็ดพิษ",      zone: "forest", lv: [8, 11],  hp: 175, atk: 22, def: 4,  spd: 50, xp: 38,  gold: 12, r: 14, aggro: 150, color: "#9b5de5" },
-    scorpion: { name: "แมงป่องทราย",  zone: "desert", lv: [11, 14], hp: 280, atk: 32, def: 7,  spd: 72, xp: 62,  gold: 18, r: 16, aggro: 190, color: "#c98a3c" },
-    mummy:    { name: "มัมมี่ซากเมือง", zone: "desert", lv: [13, 16], hp: 400, atk: 38, def: 9,  spd: 52, xp: 85,  gold: 24, r: 16, aggro: 170, color: "#e3d7b8" },
-    yeti:     { name: "เยติหิมะ",     zone: "ice",    lv: [16, 20], hp: 640, atk: 50, def: 12, spd: 62, xp: 135, gold: 36, r: 20, aggro: 200, color: "#d6ecff" },
-    boss:     { name: "ราชาหิมะ ฟรอสต์", zone: "ice", lv: [22, 22], hp: 6500, atk: 88, def: 20, spd: 66, xp: 2600, gold: 650, r: 34, aggro: 260, color: "#7fd8ff", boss: true },
+    slime:    { name: "สไลม์",        zone: "meadow", lv: [1, 3],   hp: 34,  atk: 6,  def: 0,  spd: 46, xp: 9,   gold: 3,  r: 13, aggro: 80, color: "#6fd36f" },
+    rabbit:   { name: "กระต่ายเขี้ยว", zone: "meadow", lv: [3, 6],   hp: 62,  atk: 10, def: 1,  spd: 78, xp: 15,  gold: 5,  r: 12, aggro: 90, color: "#f4f0e6" },
+    wolf:     { name: "หมาป่าหมอก",   zone: "forest", lv: [6, 9],   hp: 130, atk: 17, def: 3,  spd: 84, xp: 30,  gold: 9,  r: 15, aggro: 110, color: "#8a93a6" },
+    mushroom: { name: "เห็ดพิษ",      zone: "forest", lv: [8, 11],  hp: 175, atk: 22, def: 4,  spd: 50, xp: 38,  gold: 12, r: 14, aggro: 100, color: "#9b5de5" },
+    scorpion: { name: "แมงป่องทราย",  zone: "desert", lv: [11, 14], hp: 280, atk: 32, def: 7,  spd: 72, xp: 62,  gold: 18, r: 16, aggro: 120, color: "#c98a3c" },
+    mummy:    { name: "มัมมี่ซากเมือง", zone: "desert", lv: [13, 16], hp: 400, atk: 38, def: 9,  spd: 52, xp: 85,  gold: 24, r: 16, aggro: 110, color: "#e3d7b8" },
+    yeti:     { name: "เยติหิมะ",     zone: "ice",    lv: [16, 20], hp: 640, atk: 50, def: 12, spd: 62, xp: 135, gold: 36, r: 20, aggro: 130, color: "#d6ecff" },
+    boss:     { name: "ราชาหิมะ ฟรอสต์", zone: "ice", lv: [22, 22], hp: 6500, atk: 88, def: 20, spd: 66, xp: 2600, gold: 650, r: 34, aggro: 180, color: "#7fd8ff", boss: true },
   };
-  PW.SPAWNS = { meadow: [["slime", 9], ["rabbit", 7]], forest: [["wolf", 9], ["mushroom", 7]], desert: [["scorpion", 8], ["mummy", 8]], ice: [["yeti", 12], ["boss", 1]] };
+  PW.SPAWNS = { meadow: [["slime", 6], ["rabbit", 5]], forest: [["wolf", 7], ["mushroom", 6]], desert: [["scorpion", 7], ["mummy", 6]], ice: [["yeti", 8], ["boss", 1]] };
 
   PW.QUESTS = [
     { id: "q1", t: "กำจัดสไลม์ 8 ตัว", m: "slime", n: 8, gold: 80, xp: 120 },

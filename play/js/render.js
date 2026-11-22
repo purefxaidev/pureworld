@@ -79,7 +79,7 @@
       const dead = fr.s === "dead", rot = dead ? (flip ? 1 : -1) * Math.min(1, fr.p * 1.4) * 1.45 : 0;
       PW.drawFrame(c, hk, fr.f, h.x + lx, h.y + 3 - (fr.s === "walk" ? bob * 0.35 : 0) + ly, HH, flip, 1 + (fr.s === "idle" ? sq : 0), 1 - (fr.s === "idle" ? sq : 0), h.hurt > 0 ? h.hurt / 0.15 : 0, dead ? 0.55 : null, rot);
     } else { PW.loadAtlas(hk); sprite(hk, h.x + lx, h.y + 3 - bob + ly, HH, flip, 1 + sq, 1 - sq, h.hurt > 0 ? h.hurt / 0.15 : 0, h.dead ? 0.35 : null); }
-    if (h.shield > 0) { c.save(); const g = c.createRadialGradient(h.x, h.y - 30, 10, h.x, h.y - 30, 40); g.addColorStop(0, "rgba(138,232,255,0)"); g.addColorStop(0.8, "rgba(138,232,255,.22)"); g.addColorStop(1, "rgba(200,250,255,.6)"); c.fillStyle = g; c.beginPath(); c.ellipse(h.x, h.y - 28, 30, 38, 0, 0, 7); c.fill(); c.restore(); }
+    if (h.shield > 0 || (h.invuln || 0) > 0) { c.save(); const a = h.invuln > 0 ? 0.25 + Math.sin((G.t || t) * 10) * 0.15 : 0.22; const g = c.createRadialGradient(h.x, h.y - 30, 10, h.x, h.y - 30, 40); g.addColorStop(0, "rgba(138,232,255,0)"); g.addColorStop(0.8, "rgba(138,232,255," + a + ")"); g.addColorStop(1, "rgba(200,250,255,.6)"); c.fillStyle = g; c.beginPath(); c.ellipse(h.x, h.y - 28, 30, 38, 0, 0, 7); c.fill(); c.restore(); }
     if (h.isPlayer) label(Hd.name + " Lv" + h.level, h.x, h.y - HH - 8, "#ffe066", 11);
     else { label(Hd.name + " Lv" + h.level, h.x, h.y - HH - 12, "#fff", 10); bar(h.x, h.y - HH - 8, 34, h.hp / h.maxHp, ["#8dff9f", "#2fbf5a"], 4); }
   }

@@ -153,9 +153,13 @@
 
   PW.randomFreeIn = function (W, zid, r, R) {
     const z = PW.ZONES.find((q) => q.id === zid); const [zx, zy, zw, zh] = z.rect;
+    const sp = W.spawn || { x: 40 * T, y: 30 * T }, hero = (PW.G && PW.G.hero) || sp;
     for (let i = 0; i < 80; i++) {
       const x = (zx + 1 + R() * (zw - 2)) * T, y = (zy + 1 + R() * (zh - 2)) * T;
       if (PW.zoneAt(x, y).id !== zid) continue;
+      if (PW.zoneAt(x, y).safe) continue;
+      if (Math.hypot(x - sp.x, y - sp.y) < 240) continue;
+      if (Math.hypot(x - hero.x, y - hero.y) < 200) continue;
       if (!PW.collides(W, x, y, r + 6)) return { x, y };
     }
     return { x: (zx + zw / 2) * T, y: (zy + zh / 2) * T };

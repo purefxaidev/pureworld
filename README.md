@@ -6,7 +6,11 @@
 * **Game:** `/play/`
 * Code: MIT · Art/voice: generated with AI tools for the PureWorld project (all rights reserved by PureFxAi unless stated)
 
-## What's new in v3
+## What's new in v3.2
+
+* **Death/respawn fix** — after dying the game no longer freezes (a pause flag was left on). You respawn in town with full HP, a short invulnerability window, cleared aggro, a reset joystick, and AUTO paused so you are not immediately run back into a pack. Dying also writes a safe town save, so reopening the game mid-death doesn't drop you on the battlefield.
+* **Swarm balance** — at most 3 monsters chase you in the early zones (4 later). Aggro range and leash are tighter, respawns are slower and never on top of you or in town, and AUTO now fights one target at a time, drinks a potion, and retreats to town at low HP (default 30%, configurable in the menu).
+
 
 * **Frame-by-frame animation** — every heroine has a 12-frame AI-generated sheet (walk ×4, attack ×3, cast ×3, hurt/death, idle) and every monster + the boss
   has walk ×4 / attack ×3 / hurt. An animation state machine (`play/js/anim.js`: idle · walk · attack · cast · hurt · dead) drives them from real combat events

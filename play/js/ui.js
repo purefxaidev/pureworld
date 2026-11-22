@@ -152,6 +152,12 @@
     };
     zone.addEventListener("pointerup", end); zone.addEventListener("pointercancel", end);
     zone.addEventListener("contextmenu", (e) => e.preventDefault());
+    PW.resetControls = () => {
+      J.id = null; stickOn = false; st.on = false; st.drag = false; st.id = -1;
+      joy.classList.remove("on"); jknob.style.transform = ""; joy.style.left = ""; joy.style.bottom = "";
+      base.classList.remove("on"); knob.style.transform = "";
+      G.input.x = 0; G.input.y = 0; for (const k in keys) keys[k] = false;
+    };
     const on = (id, fn) => { const b = $(id); b.addEventListener("pointerdown", (e) => { e.preventDefault(); e.stopPropagation(); PW.audioUnlock(); fn(); }); };
     on("btn-atk", manualAttack); on("btn-s0", () => PW.castSkill(G.hero, 0)); on("btn-s1", () => PW.castSkill(G.hero, 1)); on("btn-s2", () => PW.castSkill(G.hero, 2));
     on("btn-ult", () => PW.castUlt(G.hero)); on("btn-cap", () => PW.throwCapture()); on("btn-auto", toggleAuto);
@@ -180,7 +186,7 @@
 
   // ---------------------------------------------------------------- panels
   function openPanel(html, cls) { G.paused = true; G.panel = cls || "p"; const m = $("modal"); m.innerHTML = `<div class="sheet ${cls || ""}">${html}</div>`; m.hidden = false; G.input.x = 0; G.input.y = 0; for (const k in G.keys) G.keys[k] = false; }
-  function closePanel() { if (live) { live.close(); live = null; } $("modal").hidden = true; $("modal").innerHTML = ""; G.panel = null; if (G.running && !G.hero.dead) G.paused = false; PW.save(); PW.updateHud(true); syncToggles(); }
+  function closePanel() { if (G.panel === "death" && G.hero && G.hero.dead) return; if (live) { live.close(); live = null; } $("modal").hidden = true; $("modal").innerHTML = ""; G.panel = null; if (G.running && !G.hero.dead) G.paused = false; PW.save(); PW.updateHud(true); syncToggles(); }
   PW.closePanel = closePanel;
   let curNpc = null;
   function onModalClick(e) {
@@ -200,7 +206,7 @@
     else if (a === "install") { if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; } else PW.toast("iPhone: กดปุ่มแชร์ → เพิ่มลงในหน้าจอโฮม · Android: เมนูเบราว์เซอร์ → ติดตั้งแอป", 5000); }
     else if (a === "fullscreen") { const d = document.documentElement; if (d.requestFullscreen) d.requestFullscreen().catch(() => {}); }
     else if (a === "reset") { if (confirm("ลบเซฟและกลับไปเลือกฮีโรอีนใหม่?")) { PW.wipeSave(); location.reload(); } }
-    else if (a === "revive") { closePanel(); PW.revive(); }
+    else if (a === "revive") { PW.revive(); closePanel(); }
     else if (a === "titleback") { PW.save(); location.reload(); }
     else if (a === "skills") openSkills(); else if (a === "pets") openPets(); else if (a === "book") openBook();
     else if (a === "sk-up") { if (PW.upSkill(+v)) { buildSkillButtons(); } openSkills(); }
@@ -233,7 +239,7 @@
   }
   PW.openSettings = openSettings;
   function onModalChange(e) {
-    if (e.target.id === "set-quality") { G.S.settings.quality = e.target.value; G.autoLow = false; PW.applyQuality(); PW.save(); const o = $("q-now"); if (o) o.textContent = PW.quality() === "low" ? "ประหยัด" : "สูง"; return; } if (e.target.id === "set-pot") { G.S.settings.potPct = +e.target.value; PW.save(); } }
+    if (e.target.id === "set-quality") { G.S.settings.quality = e.target.value; G.autoLow = false; PW.applyQuality(); PW.save(); const o = $("q-now"); if (o) o.textContent = PW.quality() === "low" ? "ประหยัด" : "สูง"; return; } if (e.target.id === "set-pot") { G.S.settings.potPct = +e.target.value; PW.save(); } if (e.target.id === "set-retreat") { G.S.settings.retreatPct = +e.target.value; PW.save(); } }
   PW.openPanelFn = () => ({ openSkills, openPets, openBook });
 
   function statBlock() {
@@ -320,6 +326,7 @@
     openPanel(`<div class="ph"><h2>เมนู</h2><button data-act="close" class="x">✕</button></div>
       <h3>ตั้งค่า AUTO</h3><div class="set-row"><span>ใช้สกิลอัตโนมัติ (ตอน AUTO)</span><button data-act="tg-autoskill" class="${G.S.settings.autoSkill ? "" : "sub"}">${G.S.settings.autoSkill ? "เปิด" : "ปิด"}</button></div>
       <div class="set-row"><span>กินยาแดงอัตโนมัติเมื่อ HP ต่ำกว่า</span><select id="set-pot">${[0, 30, 40, 50, 60, 70].map((v) => `<option value="${v}" ${G.S.settings.potPct === v ? "selected" : ""}>${v ? v + "%" : "ไม่ใช้"}</option>`).join("")}</select></div>
+      <div class="set-row"><span>AUTO ถอยกลับเมืองเมื่อ HP ต่ำกว่า</span><select id="set-retreat">${[0, 20, 30, 40, 50].map((v) => `<option value="${v}" ${(G.S.settings.retreatPct == null ? 30 : G.S.settings.retreatPct) === v ? "selected" : ""}>${v ? v + "%" : "ไม่ถอย"}</option>`).join("")}</select></div>
       <p class="muted">ปุ่มลัด: WASD/ลูกศร เดิน · คลิก/แตะพื้นเพื่อเดินไป · Space ตี · 1-3 สกิล · 4/F อัลติ · C ผนึก · H AUTO · K สกิล · L สัตว์เลี้ยง · N สมุด</p>
       <div class="menu"><button data-act="settings">⚙ ตั้งค่าเสียง/กราฟิก</button><button data-act="save">💾 บันทึกเกม</button><button data-act="install">📲 ติดตั้งเป็นแอป</button><button data-act="fullscreen">⛶ เต็มจอ</button><button data-act="titleback">🏠 กลับหน้าแรก</button><button data-act="reset" class="sub">🗑 เริ่มใหม่ทั้งหมด</button></div>
       <p class="muted">NPC: ${mode}</p><p class="muted">เซฟอัตโนมัติทุก 8 วินาที · เล่น ${Math.floor(S.played / 60)} นาที</p>
@@ -327,9 +334,10 @@
       <p class="muted credit">PureWorld · สร้างโดย PureFxAi · ภาพและเสียงสร้างด้วย AI</p>`, "menu");
   }
   let reviveT = null;
-  PW.showDeath = () => {
-    openPanel(`<div class="ph"><h2>ล้มแล้ว...</h2></div><p>${PW.HEROES[G.hero.id].name} หมดแรง ฟื้นที่เมืองพิวร์ (เสียทอง 10%)</p>${G.autoHunt ? '<p class="muted">AUTO เปิดอยู่ — ฟื้นอัตโนมัติใน <b id="rv-n">5</b> วิ แล้วกลับไปล่าต่อ</p>' : ""}<div class="foot"><button data-act="revive" class="big">ฟื้นที่เมือง</button></div>`, "death");
-    clearInterval(reviveT); if (G.autoHunt) { let n = 5; reviveT = setInterval(() => { n--; const el = $("rv-n"); if (el) el.textContent = n; if (G.panel !== "death") { clearInterval(reviveT); return; } if (n <= 0) { clearInterval(reviveT); closePanel(); PW.revive(); } }, 1000); }
+  PW.showDeath = (wasAuto) => {
+    const autoNote = wasAuto ? '<p class="muted">ฟื้นอัตโนมัติใน <b id="rv-n">5</b> วิ ที่เมือง — AUTO ถูกพักไว้เพื่อความปลอดภัย (กด AUTO อีกครั้งเมื่อพร้อม)</p>' : "";
+    openPanel(`<div class="ph"><h2>ล้มแล้ว...</h2></div><p>${PW.HEROES[G.hero.id].name} หมดแรง ฟื้นที่เมืองพิวร์ เลือดเต็ม (เสียทอง 10%) พร้อมเกราะคุ้มกันสั้น ๆ</p>${autoNote}<div class="foot"><button data-act="revive" class="big">ฟื้นที่เมือง</button></div>`, "death");
+    clearInterval(reviveT); if (wasAuto) { let n = 5; reviveT = setInterval(() => { n--; const el = $("rv-n"); if (el) el.textContent = n; if (G.panel !== "death") { clearInterval(reviveT); return; } if (n <= 0) { clearInterval(reviveT); PW.revive(); closePanel(); } }, 1000); }
   };
 
   // ---------------------------------------------------------------- NPC chat (scripted + Gemini Live)

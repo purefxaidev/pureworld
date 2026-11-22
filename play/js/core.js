@@ -21,21 +21,23 @@
   PW.newSave = (heroId) => ({
     v: 1, heroId, level: 1, xp: 0, gold: 100, hpPot: 5, mpPot: 3, x: 0, y: 0, hp: 0, mp: 0,
     bag: [], eq: { weapon: null, armor: null, charm: null }, qIdx: 0, qProg: 0, party: [], kills: 0,
-    settings: { sound: true, autoAtk: true, autoSkill: true, potPct: 40, musicVol: 50, sfxVol: 80, quality: "auto" }, played: 0, created: Date.now(), nextId: 1,
+    settings: { sound: true, autoAtk: true, autoSkill: true, potPct: 40, retreatPct: 30, musicVol: 50, sfxVol: 80, quality: "auto" }, played: 0, created: Date.now(), nextId: 1,
   });
   // v2 fields (also migrated into older saves)
   PW.migrate = (s) => {
     const d = { sp: 0, skl: [1, 1, 1], ult: 0, passive: false, crystals: 3, eggs: 1, treats: 2, gems: 0, pets: [], petOn: null, minionOn: null, book: {}, seen: {}, hint: 0 };
     for (const k in d) if (s[k] === undefined) s[k] = JSON.parse(JSON.stringify(d[k]));
-    if (s.settings.autoSkill === undefined) s.settings.autoSkill = true; if (!s.settings.potPct) s.settings.potPct = 40; if (s.settings.musicVol == null) s.settings.musicVol = 50; if (s.settings.sfxVol == null) s.settings.sfxVol = 80; if (!s.settings.quality) s.settings.quality = "auto";
+    if (s.settings.autoSkill === undefined) s.settings.autoSkill = true; if (!s.settings.potPct) s.settings.potPct = 40; if (s.settings.retreatPct == null) s.settings.retreatPct = 30; if (s.settings.musicVol == null) s.settings.musicVol = 50; if (s.settings.sfxVol == null) s.settings.sfxVol = 80; if (!s.settings.quality) s.settings.quality = "auto";
     if (s.spGiven === undefined) { s.sp += Math.max(0, (s.level || 1) - 1); s.spGiven = true; } // retroactive skill points
     return s;
   };
   PW.loadSave = () => { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (s && s.v === 1 && PW.HEROES[s.heroId]) return PW.migrate(s); } catch (e) { /* */ } return null; };
   PW.save = () => {
     const S = G.S, h = G.hero; if (!S || !h) return;
-    S.level = h.level; S.xp = h.xp; S.hp = Math.round(h.hp); S.mp = Math.round(h.mp); S.x = Math.round(h.x); S.y = Math.round(h.y);
-    S.party = G.allies.map((a) => a.id); S.auto = G.autoHunt;
+    S.level = h.level; S.xp = h.xp;
+    if (h.dead && G.W && G.W.spawn) { S.hp = h.maxHp; S.mp = h.maxMp; S.x = Math.round(G.W.spawn.x); S.y = Math.round(G.W.spawn.y); S.auto = false; }
+    else { S.hp = Math.round(h.hp); S.mp = Math.round(h.mp); S.x = Math.round(h.x); S.y = Math.round(h.y); S.auto = G.autoHunt; }
+    S.party = G.allies.map((a) => a.id);
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* storage full/blocked */ }
   };
   PW.wipeSave = () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* */ } };

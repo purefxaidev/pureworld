@@ -11,10 +11,28 @@
       PW.initMonster(m); G.monsters.push(m);
     }
   };
+  PW.AGGRO_CAP = 4; PW.AGGRO_CAP_ZONE = { meadow: 3, forest: 3, desert: 4, ice: 4 };
+  PW.INVULN = 3; PW.RESPAWN_T = 28; PW.BOSS_RESPAWN_T = 120; PW.LEASH = 260; PW.BOSS_LEASH = 400; PW.RESPAWN_CLEAR = 300;
   PW.initMonster = (m) => {
     const D = PW.MONSTERS[m.type]; const lvl = U.ri(D.lv[0], D.lv[1]); const sc = 1 + 0.14 * (lvl - D.lv[0]);
     m.lvl = lvl; m.maxHp = Math.round(D.hp * sc); m.hp = m.maxHp; m.atk = Math.round(D.atk * sc); m.def = D.def * sc; m.spd = D.spd; m.xp = Math.round(D.xp * (1 + 0.1 * (lvl - D.lv[0]))); m.gold = D.gold;
-    m.x = m.hx; m.y = m.hy; m.dead = false; m.target = null; m.stun = 0; m.slow = 0;
+    m.x = m.hx; m.y = m.hy; m.dead = false; m.target = null; m.forceTarget = null; m.forceT = 0; m.stun = 0; m.slow = 0; m.an = null; m.hurt = 0;
+  };
+  PW.aggroCap = () => { const z = G.hero ? PW.zoneAt(G.hero.x, G.hero.y).id : "meadow"; return PW.AGGRO_CAP_ZONE[z] || PW.AGGRO_CAP; };
+  PW.aggroCount = () => { let n = 0; for (const m of G.monsters) if (!m.dead && m.target && !m.target.dead && !PW.MONSTERS[m.type].boss) n++; return n; };
+  function claimAggro(m, src) {
+    if (!src || src.dead) return; if (m.target === src) return;
+    if (PW.MONSTERS[m.type].boss || PW.aggroCount() < PW.aggroCap()) { m.target = src; return; }
+    let far = null, fd = -1;
+    for (const x of G.monsters) { if (x === m || x.dead || !x.target || PW.MONSTERS[x.type].boss) continue; const d = Math.hypot(x.x - src.x, x.y - src.y); if (d > fd) { fd = d; far = x; } }
+    if (far && fd > Math.hypot(m.x - src.x, m.y - src.y) + 30) { far.target = null; m.target = src; }
+  }
+  PW.claimAggro = claimAggro;
+  PW.clearAggro = (snapHome) => {
+    const sp = G.W && G.W.spawn; for (const m of G.monsters) {
+      m.target = null; m.forceTarget = null; m.forceT = 0;
+      if (snapHome && !m.dead && sp && (PW.zoneAt(m.x, m.y).safe || Math.hypot(m.x - sp.x, m.y - sp.y) < 280)) { m.x = m.hx; m.y = m.hy; }
+    }
   };
   // skill context: while a player skill runs, damage/area/heal scale with its upgrade level (also inside delayed PW.later callbacks)
   let SKC = null; PW.skc = () => SKC;
@@ -57,7 +75,7 @@
     damageMonster(m, d, h, r.crit, o);
   }
   function damageMonster(m, d, src, crit, o) {
-    if (m.dead) return; m.hp -= d; m.hurt = 0.12; if (!m.target || m.target.dead) m.target = src;
+    if (m.dead) return; m.hp -= d; m.hurt = 0.12; if (!m.target || m.target.dead) claimAggro(m, src);
     if (o.stun) m.stun = Math.max(m.stun, o.stun); if (o.slow) m.slow = Math.max(m.slow, o.slow);
     if (o.knock) { const a = Math.atan2(m.y - src.y, m.x - src.x); tryMove(m, Math.cos(a) * o.knock, Math.sin(a) * o.knock); }
     PW.dmgText(m.x, m.y - m.r * 2.2, d, crit, src);
@@ -66,7 +84,7 @@
     if (m.hp <= 0) killMonster(m, src);
   }
   function killMonster(m, src) {
-    PW.sfx("pop"); m.dead = true; m.dieT = 0.5; m.respT = PW.MONSTERS[m.type].boss ? 90 : 14; m.target = null; const D = PW.MONSTERS[m.type]; const h = G.hero, S = G.S; const B = PW.bonus ? PW.bonus() : {};
+    PW.sfx("pop"); m.dead = true; m.dieT = 0.5; m.respT = PW.MONSTERS[m.type].boss ? PW.BOSS_RESPAWN_T : PW.RESPAWN_T; m.target = null; m.forceTarget = null; m.forceT = 0; const D = PW.MONSTERS[m.type]; const h = G.hero, S = G.S; const B = PW.bonus ? PW.bonus() : {};
     const pen = U.clamp(1 - (h.level - m.lvl - 4) * 0.12, 0.2, 1); const xp = Math.max(1, Math.round(m.xp * pen * (1 + (B.xp || 0)))); const gold = Math.round(m.gold * U.rnd(0.8, 1.4) * (1 + (B.gold || 0)));
     S.kills++; PW.text(m.x, m.y - 30, "+" + xp + " XP", "#9be7ff", 1.1, 13); PW.drop(m.x, m.y, "gold", gold);
     for (let i = 0; i < 14; i++) PW.part(m.x, m.y - m.r, D.color); PW.spark(m.x, m.y - m.r, "#fff", 10);
@@ -88,7 +106,7 @@
     PW.updateHud && PW.updateHud(true);
   }
   function hurtHero(h, d, src) {
-    if (h.dead) return; d = Math.max(1, Math.round(d));
+    if (h.dead) return; if ((h.invuln || 0) > 0) return; d = Math.max(1, Math.round(d));
     if (h.shield > 0) { const a = Math.min(h.shield, d); h.shield -= a; d -= a; PW.text(h.x, h.y - 24, "block", "#8ae8ff", 0.6, 11); }
     if (d <= 0) return; h.hp -= d; h.hurt = 0.15; PW.text(h.x, h.y - 24, "-" + d, h.isPlayer ? "#ff6a6a" : "#ffa0a0", 0.8, 13); if (h.isPlayer) { PW.sfx("hurt"); G.shake = 0.15; }
     if (h.hp <= 0) { h.hp = 0; h.dead = true; h.deadAt = G.t; PW.sfx && PW.sfx("down"); h.moving = false; if (h.isPlayer) PW.onPlayerDead(); else { h.reviveT = 14; PW.text(h.x, h.y - 30, "ล้มแล้ว!", "#fff", 1.2, 14); } }
@@ -221,17 +239,34 @@
 
   // ---------------------------------------------------------------- monster AI
   function updateMonster(m, dt) {
-    if (m.dead) { m.respT -= dt; if (m.respT <= 0) { const p = G.hero; if (Math.hypot(m.hx - p.x, m.hy - p.y) > 160) PW.initMonster(m); else m.respT = 3; } return; }
+    if (m.dead) {
+      m.respT -= dt; if (m.respT <= 0) {
+        const p = G.hero, sp = G.W.spawn, D = PW.MONSTERS[m.type];
+        const tooClose = Math.hypot(m.hx - p.x, m.hy - p.y) < PW.RESPAWN_CLEAR || Math.hypot(m.hx - sp.x, m.hy - sp.y) < 240 || PW.zoneAt(m.hx, m.hy).safe;
+        const liveNear = G.monsters.filter((x) => !x.dead && PW.MONSTERS[x.type].zone === D.zone && Math.hypot(x.x - p.x, x.y - p.y) < 440).length;
+        const capNear = D.zone === "meadow" ? 6 : D.zone === "forest" ? 7 : 8;
+        if (tooClose || liveNear >= capNear) { m.respT = 6; return; }
+        PW.initMonster(m);
+      }
+      return;
+    }
     m.hurt = Math.max(0, m.hurt - dt); m.atkT -= dt;
     if (m.stun > 0) { m.stun -= dt; return; }
     const D = PW.MONSTERS[m.type]; const sl = m.slow > 0 ? 0.55 : 1; if (m.slow > 0) m.slow -= dt;
     let t = null;
     if (m.forceT > 0 && m.forceTarget && !m.forceTarget.dead) { t = m.forceTarget; m.forceT -= dt; }
+    else if (m.target && !m.target.dead && Math.hypot(m.target.x - m.x, m.target.y - m.y) < D.aggro * 1.35) t = m.target;
     else {
-      if (m.target && !m.target.dead && Math.hypot(m.target.x - m.x, m.target.y - m.y) < D.aggro * 1.8) t = m.target;
-      else { let bd = D.aggro; m.target = null; for (const h of alive()) { const d = Math.hypot(h.x - m.x, h.y - m.y); if (d < bd) { bd = d; t = h; } } m.target = t; }
+      m.target = null; let bd = D.aggro, cand = null;
+      for (const h of alive()) { const d = Math.hypot(h.x - m.x, h.y - m.y); if (d < bd) { bd = d; cand = h; } }
+      if (cand) {
+        if (D.boss || PW.aggroCount() < PW.aggroCap()) { t = cand; m.target = cand; }
+        else t = null;
+      }
     }
-    if (Math.hypot(m.x - m.hx, m.y - m.hy) > 560) { t = null; m.target = null; }
+    const leash = D.boss ? PW.BOSS_LEASH : PW.LEASH;
+    if (Math.hypot(m.x - m.hx, m.y - m.hy) > leash) { t = null; m.target = null; }
+    if (t && (PW.zoneAt(m.x, m.y).safe || PW.zoneAt(t.x, t.y).safe || (t.invuln || 0) > 0)) { t = null; m.target = null; }
     if (!t) {
       const dh = Math.hypot(m.hx - m.x, m.hy - m.y);
       if (dh > 14) { tryMove(m, ((m.hx - m.x) / dh) * m.spd * 0.8 * dt, ((m.hy - m.y) / dh) * m.spd * 0.8 * dt); m.hp = Math.min(m.maxHp, m.hp + m.maxHp * 0.1 * dt); }
@@ -251,7 +286,7 @@
     for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0) tm.fn(); } G.timers = G.timers.filter((tm) => tm.t > 0);
     // player
     if (!h.dead) {
-      h.atkT -= dt; h.hurt = Math.max(0, h.hurt - dt); h.cast = Math.max(0, h.cast - dt); for (let i = 0; i < 3; i++) h.cds[i] = Math.max(0, h.cds[i] - dt);
+      h.atkT -= dt; h.hurt = Math.max(0, h.hurt - dt); h.cast = Math.max(0, h.cast - dt); if (h.invuln > 0) h.invuln = Math.max(0, h.invuln - dt); for (let i = 0; i < 3; i++) h.cds[i] = Math.max(0, h.cds[i] - dt);
       if (h.stun > 0) h.stun -= dt; if (h.slow > 0) h.slow -= dt; if (h.buff.t > 0) h.buff.t -= dt; if (h.shieldT > 0) { h.shieldT -= dt; if (h.shieldT <= 0) h.shield = 0; }
       h.mp = Math.min(h.maxMp, h.mp + h.maxMp * 0.012 * dt); if (PW.zoneAt(h.x, h.y).safe) { h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.08 * dt); h.mp = Math.min(h.maxMp, h.mp + h.maxMp * 0.08 * dt); } else h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.004 * dt);
       PW.playerControl(h, dt, S);
@@ -264,7 +299,7 @@
       a.hp = Math.min(a.maxHp, a.hp + a.maxHp * 0.01 * dt);
       if (h.dead) return; const r = heroAI(a, dt, h); moveHero(a, r.mx, r.my, dt);
     });
-    for (const m of G.monsters) { if (m.dead || Math.abs(m.x - h.x) < 900 && Math.abs(m.y - h.y) < 700 || m.hp < m.maxHp) updateMonster(m, dt); else if (m.dead) updateMonster(m, dt); }
+    for (const m of G.monsters) { if (m.dead || m.hp < m.maxHp || m.target || (Math.abs(m.x - h.x) < 900 && Math.abs(m.y - h.y) < 700)) updateMonster(m, dt); }
     updateProjs(dt); PW.updateComps && PW.updateComps(dt); PW.updateLoot && PW.updateLoot(dt);
     for (const m of G.monsters) if (m.dead && m.dieT > 0) m.dieT -= dt;
     for (const sl of G.slashes) sl.t -= dt; G.slashes = G.slashes.filter((q) => q.t > 0);
@@ -289,12 +324,33 @@
   };
   function pickHuntZone() { const lv = G.hero.level; return lv >= 16 ? "ice" : lv >= 11 ? "desert" : lv >= 6 ? "forest" : "meadow"; }
 
-  PW.onPlayerDead = () => { G.moveTo = null; PW.showDeath && PW.showDeath(); };
+  PW.onPlayerDead = () => {
+    const h = G.hero, S = G.S, wasAuto = !!G.autoHunt;
+    G.moveTo = null; G.huntTarget = null; G.capTarget = null; G.timers = [];
+    h.moving = false; h.cast = 0; h.an = null; h._path = null; h.stun = 0;
+    G.input.x = 0; G.input.y = 0; PW.resetControls && PW.resetControls();
+    if (wasAuto) { G.autoHunt = false; S.auto = false; }
+    PW.clearAggro(false);
+    PW.showDeath && PW.showDeath(wasAuto);
+    // persist a safe town snapshot so a crash/reload mid-death doesn't drop the player back into the pack
+    const ox = h.x, oy = h.y, oh = h.hp, om = h.mp;
+    h.x = G.W.spawn.x; h.y = G.W.spawn.y; h.hp = h.maxHp; h.mp = h.maxMp; PW.save();
+    h.x = ox; h.y = oy; h.hp = oh; h.mp = om;
+  };
   PW.revive = () => {
-    const h = G.hero, S = G.S; const loss = Math.floor(S.gold * 0.1); S.gold -= loss; h.dead = false; h.hp = Math.round(h.maxHp * 0.5); h.mp = Math.round(h.maxMp * 0.5);
-    h.x = G.W.spawn.x; h.y = G.W.spawn.y; h.shield = 0; h.stun = 0; for (const a of G.allies) { a.dead = false; a.hp = a.maxHp; a.x = h.x; a.y = h.y; }
-    for (const m of G.monsters) { if (!m.dead && m.target) m.target = null; }
-    PW.save(); PW.toast("ฟื้นขึ้นที่เมืองพิวร์ (เสียทอง " + loss + ")"); PW.fade && PW.fade("#000", 1, 1000);
+    const h = G.hero, S = G.S; const loss = Math.floor(S.gold * 0.1); S.gold -= loss;
+    h.dead = false; delete h.deadAt; h.an = null; h.cast = 0; h.hurt = 0; h.moving = false; h._path = null;
+    h.hp = h.maxHp; h.mp = h.maxMp; h.shield = 0; h.stun = 0; h.slow = 0; h.invuln = PW.INVULN;
+    h.x = G.W.spawn.x; h.y = G.W.spawn.y; G.cam.x = h.x; G.cam.y = h.y;
+    G.moveTo = null; G.huntTarget = null; G.capTarget = null; G.input.x = 0; G.input.y = 0; G.timers = [];
+    PW.resetControls && PW.resetControls();
+    for (const a of G.allies) { a.dead = false; delete a.deadAt; a.an = null; a.hp = a.maxHp; a.mp = a.maxMp; a.x = h.x + 24; a.y = h.y + 18; a.invuln = PW.INVULN; a.moving = false; }
+    PW.clearAggro(true); PW.syncComps && PW.syncComps();
+    if (G.comps) for (const c of G.comps) { c.x = h.x - 20; c.y = h.y + 16; c.tgt = null; }
+    G.paused = false; G.panel = null;
+    PW.save(); PW.updateHud && PW.updateHud(true);
+    PW.toast("ฟื้นขึ้นที่เมืองพิวร์ (เลือดเต็ม · ทองเสีย " + loss + (S.auto === false ? " · AUTO พักไว้" : "") + ")");
+    PW.fade && PW.fade("#000", 1, 1000);
   };
   PW.pickHuntZone = pickHuntZone;
 
@@ -357,14 +413,33 @@
     if (S.settings.autoAtk) { const e = nearestMonster(h, H.range, false); if (e && !manual) { h.face = U.ang(h, e); PW.basicAttack(h, e); } else if (e && manual) PW.basicAttack(h, e); }
   };
   function autoFarm(h, dt, S, H) {
-    const lt = PW.nearestLoot ? PW.nearestLoot(h, 240) : null; const close = nearestMonster(h, 110, false);
-    if (lt && !close) { const dx = lt.x - h.x, dy = lt.y - h.y, d = Math.hypot(dx, dy) || 1; moveHero(h, dx / d, dy / d, dt); return; }
-    const z = PW.zoneAt(h.x, h.y), hz = pickHuntZone();
-    if (z.safe || (z.id !== hz && !nearestMonster(h, 300, true))) {
-      const zz = PW.ZONES.find((q) => q.id === hz); const tx = (zz.rect[0] + zz.rect[2] / 2) * T, ty = (zz.rect[1] + zz.rect[3] / 2) * T; const dx = tx - h.x, dy = ty - h.y, d = Math.hypot(dx, dy) || 1;
-      void dx; void dy; void d; pathTo(h, tx, ty, dt); if (close) PW.basicAttack(h, close); return;
+    const retreat = (S.settings.retreatPct == null ? 30 : S.settings.retreatPct) / 100;
+    const z = PW.zoneAt(h.x, h.y);
+    if (retreat > 0 && h.hp < h.maxHp * retreat && !z.safe) {
+      G.huntTarget = null; pathTo(h, G.W.spawn.x, G.W.spawn.y, dt); return;
+    }
+    if (z.safe && retreat > 0 && h.hp < h.maxHp * Math.max(retreat + 0.25, 0.55)) { h.moving = false; return; }
+    const lt = PW.nearestLoot ? PW.nearestLoot(h, 240) : null;
+    let e = G.huntTarget;
+    if (!e || e.dead || Math.hypot(e.x - h.x, e.y - h.y) > 520) e = (G.huntTarget = nearestMonster(h, 640, true));
+    if (lt && !e) { const dx = lt.x - h.x, dy = lt.y - h.y, d = Math.hypot(dx, dy) || 1; moveHero(h, dx / d, dy / d, dt); return; }
+    const hz = pickHuntZone();
+    if (z.safe || (z.id !== hz && !e)) {
+      const zz = PW.ZONES.find((q) => q.id === hz); pathTo(h, (zz.rect[0] + zz.rect[2] / 2) * T, (zz.rect[1] + zz.rect[3] / 2) * T, dt);
+      return;
+    }
+    // stick to one target: move/attack only that monster (heroAI would retarget the nearest every frame and pull a pack)
+    const locked = e;
+    if (locked && !locked.dead) {
+      const d = Math.hypot(locked.x - h.x, locked.y - h.y) - locked.r, a = U.ang(h, locked);
+      if (d > H.range * (H.ranged ? 0.85 : 0.6)) moveHero(h, Math.cos(a), Math.sin(a), dt);
+      else if (H.ranged && d < 60) moveHero(h, -Math.cos(a), -Math.sin(a), dt);
+      else { h.moving = false; h.face = a; }
+      if (!h.isPlayer || S.settings.autoSkill !== false) { for (let i = 0; i < 3; i++) if (aiWants(h, i, locked)) { h.face = a; if (PW.castSkill(h, i)) break; } }
+      if (d <= H.range) PW.basicAttack(h, locked);
+      return;
     }
     const r = heroAI(h, dt, null); moveHero(h, r.mx, r.my, dt);
   }
-  PW._cb = { hit, near, shoot, healHero, shieldHero, tryMove, nearestMonster, moveHero, alive, damageMonster };
+  PW._cb = { hit, near, shoot, healHero, shieldHero, tryMove, nearestMonster, moveHero, alive, damageMonster, hurtHero };
 })();
